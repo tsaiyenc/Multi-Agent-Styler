@@ -7,3 +7,6 @@ accelerate==0.20.3
 click
 imageio
 controlnet_aux
+pyautogen==0.9.0
+openai
+tqdm
