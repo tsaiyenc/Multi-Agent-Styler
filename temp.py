@@ -6,7 +6,6 @@ import base64
 from mimetypes import guess_type
 import argparse
 from pathlib import Path
-import sys
 
 # OpenAI API key setup
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
