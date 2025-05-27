@@ -1,0 +1,24 @@
+01.png, A painting of a blue door and a blue window on a white wall, with a brown flower pot containing green leaves and pink flowers positioned to the right of the door, in the style of {}
+02.png, A painting of a busy street scene with various buildings, traffic lights, cars, pedestrians, and a person on a bicycle, all positioned in an urban environment, in the style of {}
+03.png, A painting of a still life arrangement featuring four fruits, including two green pears on the left, two red oranges and one yellowish-green apple on the right, atop a white cloth with a red-striped pattern, against a textured background, in the style of {}
+04.png, A painting of a narrow, winding street in a historical urban setting, featuring several buildings on both sides, one street lamp, and a cobblestone pathway leading out of view, in the style of {}
+05.png, A painting of a harbor scene with several boats, including larger steamers, smaller vessels, and a sailboat, a green bridge in the background, smoke rising from the boats, and people in smaller boats rowing, in the style of {}
+06.png, A painting of a room with four women, one playing a violin, one seated at a piano, and two others sitting nearby, with a piano, sheet music, a large vase, and a decorative rug on the floor, in the style of {}
+07.png, A painting of a busy street scene filled with people, horse-drawn carriages, market stalls, buildings with balconies, and a large banner overhead, in the style of {}
+08.png, A painting of a busy street scene with several people walking with umbrellas, horse-drawn carriages, buildings in the background, and a river with boats on the right side, in the style of {}
+09.png, A painting of a street scene featuring a mosque with a dome and a minaret, several trees, a few buildings with red roofs, and two people walking along the path, in the style of {}
+10.png, A painting of a figure with a head and legs positioned to the right, sitting on a blue shape, holding a book, a second reclining figure on a table, an upright mirror with a framed image, a vase with flowers on the table, and geometric background shapes, in the style of {}
+city.png, A painting of a city skyline at dusk, featuring numerous tall buildings of varying designs and colors, with illuminated windows, streets filled with buildings, and visible rooftops, in the style of {}
+
+
+
+01.png, A painting of a blue door and window, with a flower pot in the foreground, in the style of {}
+02.png, A painting of a street in New York City, bustling with a crossing crowd, cars, and buildings, in the style of {}
+03.png, A painting of pencil, pears and apples on a cloth, in the style of {}
+04.png, A painting of a street with buildings on both sides, in the style of {}
+05.png, A painting of boats in the harbor with a backdrop of smoke and a bridge, in the style of {}
+06.png, A painting of a woman in a blue dress playing a violin, alongside another woman in a red dress playing a piano behind the violinist, with women sitting in chairs, engrossed in listening to the music, in the style of {}
+07.png, A painting of a bustling street market, filled with people, stalls, a carriage, shops, and surrounding buildings, in the style of {}
+08.png, A painting of a city bridge, busy with people carrying umbrellas and a wagon, and buildings depicted in the background, in the style of {}
+09.png, A painting of a street scene with a mosque and trees in the background, in the style of {}
+10.png, A painting of a woman reading a book, with a vase of flowers and a ghost seated at the table, and a mirror positioned next to the woman, in the style of {}

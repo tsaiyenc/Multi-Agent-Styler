@@ -17,7 +17,7 @@ LLM_CFG = {"config_list": [{"model": "gpt-4o-mini", "api_key": OPENAI_API_KEY}]}
 
 def post_process(text: str, filename: str) -> str:
     core = text.strip().rstrip('.')  # 去掉尾部的句点
-    return f"{filename}, A painting of {core}, in the style of {{}}"
+    return f"{filename}, A painting of \"{core}\", in the style of {{}}"
 
 # Local image to data URL
 def local_image_to_data_url(image_path):
@@ -89,13 +89,14 @@ def process_folder(folder: Path, prompt: str) -> list[str]:
 if __name__ == "__main__":
     
     prompt = (
-    "Please provide a factual, objective description of the image content:\n"
+    "Please provide a detailed, factual, objective description of the image content:\n"
     "- List all visible objects and their quantities.\n"
     "- Describe each object's color and relative position.\n"
     "- If there are people or animals, state what actions they are performing.\n"
     "Do not mention any artistic style, brushstrokes, lighting effects, or aesthetic qualities.\n"
-    "Please output exactly one line in this format:\n"
+    "Please output line by line in this format, instead of using list format:\n"
     "Ex. a bustling street market, filled with people, stalls, a carriage, shops, and surrounding buildings."
+    "IMPORTANT: output exactly one single sentence with NO newline or line breaks."
     )
 
     parser = argparse.ArgumentParser(description='Analyze image content')
