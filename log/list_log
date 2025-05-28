@@ -1,0 +1,50 @@
+Processing image: ./images/01.png
+Context prompt: ["a door", "a window", "a flower pot", "flowers", "a wall"], in the style of {}
+Placeholder token: <list01>
+Output directory: ./outputs/list/list01
+Negative prompt: wall, blue door, small window, blue window, brown pot, flowering plant
+Processing image: ./images/02.png
+Context prompt: ["buildings", "traffic lights", "cars", "people", "bicycles", "signage", "street", "sidewalk", "trees"], in the style of {}
+Placeholder token: <list02>
+Output directory: ./outputs/list/list02
+Negative prompt: busy city street, tall buildings, multiple cars, white sedan, large truck, traffic light, people, bicycle, pedestrians, sidewalk café
+Processing image: ./images/03.png
+Context prompt: ["a table", "a cloth", "four fruits", "a knife"], in the style of {}
+Placeholder token: <list03>
+Output directory: ./outputs/list/list03
+Negative prompt: still life arrangement, five fruits, two green pears, two red oranges, one yellow-green apple, patterned tablecloth, white cloth
+Processing image: ./images/04.png
+Context prompt: ["narrow street", "buildings", "lamp post", "cobblestone pavement", "chimneys", "windows", "street corner"], in the style of {}
+Placeholder token: <list04>
+Output directory: ./outputs/list/list04
+Negative prompt: narrow, winding street, tall buildings, street lamps, brick walls, stone walls, windows, facades, cobblestone road, misty background
+Processing image: ./images/05.png
+Context prompt: ["a river", "boats", "steamships", "a bridge", "smoke", "people in boats", "sailboats", "piers"], in the style of {}
+Placeholder token: <list05>
+Output directory: ./outputs/list/list05
+Negative prompt: boats, steamers, sailboats, bridge, smoke, figures, water
+Processing image: ./images/06.png
+Context prompt: ["a piano", "music sheets", "a violin", "four women", "a chair", "a sofa", "two candles", "a plant", "a rug", "decorative wall"], in the style of {}
+Placeholder token: <list06>
+Output directory: ./outputs/list/list06
+Negative prompt: room, women, music, woman, gown, violin, dress, piano, women, gowns, head, piano, sheet music, background
+Processing image: ./images/07.png
+Context prompt: ["buildings", "people", "balconies", "horse-drawn carriages", "stalls", "lampposts", "signs", "umbrellas", "banners", "fruit", "children"], in the style of {}
+Placeholder token: <list07>
+Output directory: ./outputs/list/list07
+Negative prompt: buildings, balconies, horse-drawn carriage, people, market stalls, fruits, vegetables, pedestrians, hats, clothing, individuals, items, banner
+Processing image: ./images/08.png
+Context prompt: ["buildings", "people", "umbrellas", "carriages", "lampposts", "water", "smoke", "road"], in the style of {}
+Placeholder token: <list08>
+Output directory: ./outputs/list/list08
+Negative prompt: people, umbrellas, horse-drawn carriages, buildings, body of water, smoke
+Processing image: ./images/09.png
+Context prompt: ["a mosque", "a minaret", "a dome", "several trees", "buildings", "a street", "people"], in the style of {}
+Placeholder token: <list09>
+Output directory: ./outputs/list/list09
+Negative prompt: mosque, minaret, dome, trees, buildings, roof, people, path, person, fabrics, display
+Processing image: ./images/10.png
+Context prompt: ["a table", "a vase", "flowers", "a picture frame", "a person sitting", "an outline of a reclining figure", "a floor"], in the style of {}
+Placeholder token: <list10>
+Output directory: ./outputs/list/list10
+Negative prompt: seated figure, neutral expression, book, table, flat surface, vase, flowers, ornate mirror, abstract red shapes, geometric shapes, varying shades of green, orange, background

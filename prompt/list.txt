@@ -1,0 +1,11 @@
+01.png,["a door", "a window", "a flower pot", "flowers", "a wall"], in the style of {}
+02.png,["buildings", "traffic lights", "cars", "people", "bicycles", "signage", "street", "sidewalk", "trees"], in the style of {}
+03.png,["a table", "a cloth", "four fruits", "a knife"], in the style of {}
+04.png,["narrow street", "buildings", "lamp post", "cobblestone pavement", "chimneys", "windows", "street corner"], in the style of {}
+05.png,["a river", "boats", "steamships", "a bridge", "smoke", "people in boats", "sailboats", "piers"], in the style of {}
+06.png,["a piano", "music sheets", "a violin", "four women", "a chair", "a sofa", "two candles", "a plant", "a rug", "decorative wall"], in the style of {}
+07.png,["buildings", "people", "balconies", "horse-drawn carriages", "stalls", "lampposts", "signs", "umbrellas", "banners", "fruit", "children"], in the style of {}
+08.png,["buildings", "people", "umbrellas", "carriages", "lampposts", "water", "smoke", "road"], in the style of {}
+09.png,["a mosque", "a minaret", "a dome", "several trees", "buildings", "a street", "people"], in the style of {}
+10.png,["a table", "a vase", "flowers", "a picture frame", "a person sitting", "an outline of a reclining figure", "a floor"], in the style of {}
+city.png,["skyscrapers", "buildings", "rooftops", "windows", "city lights", "streets", "sky"], in the style of {}
