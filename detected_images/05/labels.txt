@@ -1,0 +1,4 @@
+crop_001.png, sailboatsin the style of {}
+crop_002.png, a riverin the style of {}
+crop_003.png, a bridgein the style of {}
+crop_004.png, boatsin the style of {}

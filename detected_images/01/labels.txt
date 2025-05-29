@@ -1,0 +1,6 @@
+crop_001.png, a doorin the style of {}
+crop_002.png, a flower potin the style of {}
+crop_003.png, a wallin the style of {}
+crop_004.png, a windowin the style of {}
+crop_005.png, flowersin the style of {}
+crop_006.png, a windowin the style of {}

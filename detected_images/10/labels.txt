@@ -1,0 +1,9 @@
+crop_001.png, a picture framein the style of {}
+crop_002.png, an outlinein the style of {}
+crop_003.png, a vasein the style of {}
+crop_004.png, flowersin the style of {}
+crop_005.png, flowersin the style of {}
+crop_006.png, a personin the style of {}
+crop_007.png, a tablein the style of {}
+crop_008.png, ain the style of {}
+crop_009.png, flowersin the style of {}
