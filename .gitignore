@@ -12,6 +12,3 @@ local/
 
 # test
 test/
-
-# Output
-outputs/sks*
