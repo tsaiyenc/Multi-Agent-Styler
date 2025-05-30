@@ -19,7 +19,7 @@ import torch
 from diffusers import StableDiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.pipelines.controlnet import StableDiffusionControlNetImg2ImgPipeline
-from diffusers.utils import is_compiled_module
+# from diffusers.utils import is_compiled_module
 from diffusers.models import ControlNetModel
 from diffusers.pipelines.controlnet import MultiControlNetModel
 
@@ -308,7 +308,8 @@ def func_call_controlnet_img2img_pipeline(
     control_guidance_start: Union[float, List[float]] = 0.0,
     control_guidance_end: Union[float, List[float]] = 1.0,
 ):
-    controlnet = self.controlnet._orig_mod if is_compiled_module(self.controlnet) else self.controlnet
+    # controlnet = self.controlnet._orig_mod if is_compiled_module(self.controlnet) else self.controlnet
+    controlnet = self.controlnet._orig_mod if hasattr(self.controlnet, '_orig_mod') else self.controlnet
 
     # align format for control guidance
     if not isinstance(control_guidance_start, list) and isinstance(control_guidance_end, list):
