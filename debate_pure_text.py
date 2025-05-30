@@ -8,12 +8,14 @@ LLM_CFG = {
     "config_list": [
         {
             "model": "gpt-4o-mini",
-            "api_key": OPENAI_API_KEY
+            "api_key": OPENAI_API_KEY,
+            "max_tokens": 2048
         }
     ]
 }
 
 # === Agent Definitions ===
+# === Critique Agent ===
 critique = AssistantAgent(
     name="CritiqueAgent",
     system_message=(
@@ -24,6 +26,7 @@ critique = AssistantAgent(
     llm_config=LLM_CFG,
 )
 
+# === Analyzer Agent ===
 analyzer = AssistantAgent(
     name="AnalyzerAgent",
     system_message=(
@@ -33,6 +36,7 @@ analyzer = AssistantAgent(
     llm_config=LLM_CFG,
 )
 
+# === Scorer Agent ===
 scorer = AssistantAgent(
     name="ScorerAgent",
     system_message=(
@@ -42,20 +46,39 @@ scorer = AssistantAgent(
     llm_config=LLM_CFG,
 )
 
-# === Debate Function with message format safety check ===
-def run_debate(score_type, evaluator, scorer, description, rounds=3):
+# === Summarizer Agent ===
+PROMPT_EXAMPLES = ''
+summarizer = AssistantAgent(
+    name="SummarizerAgent",
+    system_message=(
+        "You are an image feedback summarizer. Given a debate summary from the ScorerAgent "
+        "about the aesthetic, style, and context of a target image, your task is to extract and propose:\n"
+        "1. A concise target style description\n"
+        "2. A concise target context description\n"
+        "These will guide the next round of image generation to better match the intended aesthetic goals.\n"
+        "RETURN ONY IN JSON FORMAT:\n"
+        "{\"Overall Score\": \"<overall score>\", \"Style\": \"<style description>\", \"Context\": \"<context description>\"}"
+        
+    ),
+    llm_config=LLM_CFG,
+)
+
+# === Pipeline runner ===
+# === Debate ===
+def run_debate(score_type, evaluator, scorer, description, rounds=3, history_logger=None):
     print(f"\n===== Starting {score_type} Debate =====")
 
     initial_prompt = {
         "role": "user",
         "content": f"""Please assess the following image:
 
-Image Description:
-\"\"\"{description}\"\"\"
+        Image Description:
+        \"\"\"{description}\"\"\"
 
-Your task is to evaluate the **{score_type}** of the image on a scale from 0 to 10.
-Begin by proposing a score and justification, then proceed with discussion and revisions if necessary.
-"""
+        Your task is to evaluate the **{score_type}** of the image on a scale from 0 to 10.
+        Begin by proposing a score and justification, then proceed with discussion and revisions if necessary.
+        FOCUS ONLY ON THE {score_type.upper()} SCORE, NOT THE OVERALL IMAGE QUALITY.
+        """
     }
 
     message_history = [initial_prompt]
@@ -84,18 +107,78 @@ Begin by proposing a score and justification, then proceed with discussion and r
     if isinstance(final_summary, str):
         final_summary = {"role": "assistant", "name": scorer.name, "content": final_summary}
 
-    print(f"\n🎯 Final {score_type} Score Summary from {scorer.name}:\n{final_summary['content']}\n")
+    print(f"\nFinal {score_type} Score Summary from {scorer.name}:\n{final_summary['content']}\n")
+    
+    # Put logger history
+    if history_logger:
+        history_logger.logger_dict[score_type] = message_history
+        history_logger.logger_dict['Final Summary'] += final_summary['content']
     return final_summary
+
+# === Summarize ===
+def summarize_guidance_from_score(sytle_score_summary:dict, context_score_summary:dict):
+    summary_prompt = [
+        {"role": "user", "content": "Based on the following scoring summary, extract ideal descriptions for STYLE and CONTEXT."},
+        {"role": "assistant", "name": "ScorerAgent", "content": sytle_score_summary["content"]},
+        {"role": "assistant", "name": "ScorerAgent", "content": context_score_summary["content"]}
+    ]
+
+    summary_response = summarizer.generate_reply(summary_prompt, return_message=True)
+    if isinstance(summary_response, str):
+        summary_response = {"role": "assistant", "name": summarizer.name, "content": summary_response}
+
+    # print("\n Summarized Target Guidance (from SummarizerAgent):")
+    # print(summary_response["content"])
+    return summary_response
 
 # === Example usage ===
 if __name__ == "__main__":
+    ### Variables
+    PROMPT_LOGGER_PATH = "WHOS_YOUR_DADDY.csv"
+    HISTORY_LOGGER_PATH = "WHOS_YOUR_MAMA.json"
+    TOTAL_ROUNDS = 3
+    IMG_URL = "https://example.com/path/to/your/image.jpg"
+    SOURCE_PROMPTS = ['blah', 'blah2', 'blah3']  # Example source prompts, replace with actual prompts
+    REFERENCE_STYLE = "Van Gogh"
+    REFERENCE_CONTEXT = "childhood connection with nature"
     image_description = (
         "This is a watercolor illustration of a little girl playing with a fox in a lush forest. "
         "The target style is Studio Ghibli. The intended theme is 'childhood connection with nature'."
     )
+    
+    ### Running the pipeline
+    print("Starting the image evaluation pipeline...")
+    from logger import HistoryLogger
+    history_logger = HistoryLogger(HISTORY_LOGGER_PATH)
 
-    style_score_summary = run_debate("Style", critique, scorer, image_description, rounds=3)
-    context_score_summary = run_debate("Context", analyzer, scorer, image_description, rounds=3)
+    style_score_summary = run_debate("Style", critique, scorer, image_description, rounds=TOTAL_ROUNDS, history_logger = history_logger)
+    context_score_summary = run_debate("Context", analyzer, scorer, image_description, rounds=TOTAL_ROUNDS, history_logger = history_logger)
 
     print("Style Score Content:\n", style_score_summary["content"])
     print("Context Score Content:\n", context_score_summary["content"])
+
+    # Dump history logger
+    history_logger.log_history(target_image_url=IMG_URL, total_rounds=TOTAL_ROUNDS)
+    print(f"History logged to {HISTORY_LOGGER_PATH}")
+
+    ### Summarizing Guidance
+    print("\nSummarizing Guidance from Scores...")
+    guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
+    print("Guidance Summary Content:\n", guidance_summary["content"])
+    
+
+    ### Logging the results
+    from logger import ImageEvalLogger
+    from ast import literal_eval
+        
+    logger = ImageEvalLogger(PROMPT_LOGGER_PATH)
+    contents = literal_eval(guidance_summary["content"])
+    logger.log(
+        target_image_url=IMG_URL,
+        overall_score=(contents["Overall Score"]),
+        original_description=image_description,
+        suggested_description=(contents["Style"] + " " + contents["Context"])    
+    )
+
+    print(f"Results logged to {PROMPT_LOGGER_PATH}")
+    print("Pipeline execution completed.")
