@@ -1,0 +1,11 @@
+crop_001.png, a violinin the style of {}
+crop_002.png, four womenin the style of {}
+crop_003.png, two candlesin the style of {}
+crop_004.png, four womenin the style of {}
+crop_005.png, four womenin the style of {}
+crop_006.png, four womenin the style of {}
+crop_007.png, a chairin the style of {}
+crop_008.png, music sheetsin the style of {}
+crop_009.png, a pianoin the style of {}
+crop_010.png, four womenin the style of {}
+crop_011.png, a chairin the style of {}

@@ -1,0 +1,15 @@
+crop_001.png, skyin the style of {}
+crop_002.png, skyscrapersin the style of {}
+crop_003.png, skyscrapersin the style of {}
+crop_004.png, skyscrapersin the style of {}
+crop_005.png, skyscrapersin the style of {}
+crop_006.png, skyscrapersin the style of {}
+crop_007.png, skyscrapersin the style of {}
+crop_008.png, skyscrapersin the style of {}
+crop_009.png, skyscrapersin the style of {}
+crop_010.png, skyscrapersin the style of {}
+crop_011.png, skyscrapersin the style of {}
+crop_012.png, skyscrapersin the style of {}
+crop_013.png, windowsin the style of {}
+crop_014.png, skyscrapersin the style of {}
+full.png, sky, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, skyscrapers, windows, skyscrapers in the style of {}

@@ -1,0 +1,34 @@
+crop_001.png, windowsin the style of {}
+crop_002.png, buildingsin the style of {}
+crop_003.png, windowsin the style of {}
+crop_004.png, windowsin the style of {}
+crop_005.png, windowsin the style of {}
+crop_006.png, windowsin the style of {}
+crop_007.png, windowsin the style of {}
+crop_008.png, narrow streetin the style of {}
+crop_009.png, windowsin the style of {}
+crop_010.png, windowsin the style of {}
+crop_011.png, windowsin the style of {}
+crop_012.png, windowsin the style of {}
+crop_013.png, buildingsin the style of {}
+crop_014.png, windowsin the style of {}
+crop_015.png, windowsin the style of {}
+crop_016.png, windowsin the style of {}
+crop_017.png, windowsin the style of {}
+crop_018.png, windowsin the style of {}
+crop_019.png, windowsin the style of {}
+crop_020.png, windowsin the style of {}
+crop_021.png, windowsin the style of {}
+crop_022.png, cobblestone pavementin the style of {}
+crop_023.png, windowsin the style of {}
+crop_024.png, buildingsin the style of {}
+crop_025.png, windowsin the style of {}
+crop_026.png, windowsin the style of {}
+crop_027.png, windowsin the style of {}
+crop_028.png, windowsin the style of {}
+crop_029.png, chimneysin the style of {}
+crop_030.png, windowsin the style of {}
+crop_031.png, windowsin the style of {}
+crop_032.png, windowsin the style of {}
+crop_033.png, windowsin the style of {}
+crop_034.png, windowsin the style of {}

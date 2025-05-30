@@ -1,0 +1,11 @@
+crop_001.png, umbrellasin the style of {}
+crop_002.png, umbrellasin the style of {}
+crop_003.png, peoplein the style of {}
+crop_004.png, peoplein the style of {}
+crop_005.png, peoplein the style of {}
+crop_006.png, peoplein the style of {}
+crop_007.png, peoplein the style of {}
+crop_008.png, buildingsin the style of {}
+crop_009.png, peoplein the style of {}
+crop_010.png, peoplein the style of {}
+crop_011.png, lamppostsin the style of {}

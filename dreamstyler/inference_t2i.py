@@ -54,6 +54,7 @@ def load_model(sd_path, embedding_path, placeholder_token="<sks1>", num_stages=6
 @click.option("--neg_gamma", default=5.0)
 @click.option("--num_samples", default=5)
 @click.option("--seed")
+@click.option("--neg_prompt", default="low resolution, poorly drawn, worst quality, low quality, normal quality, blurry image, artifact")
 def t2i(
     sd_path=None,
     embedding_path=None,
@@ -67,6 +68,7 @@ def t2i(
     neg_gamma=5.0,
     num_samples=5,
     seed=None,
+    neg_prompt="low resolution, poorly drawn, worst quality, low quality, normal quality, blurry image, artifact",
 ):
     os.makedirs(saveroot, exist_ok=True)
 
@@ -81,28 +83,29 @@ def t2i(
     }
 
     pos_prompt = [prompt.format(f"{placeholder_token}-T{t}") for t in range(num_stages)]
-    neg_prompt = (
-        "low resolution, poorly drawn, worst quality, low quality,"
-        " normal quality, blurry image, artifact"
-    )
-
+    
+    neg_prompt = neg_prompt
+    
     if use_sc_guidance:
-        prompt_null_sty = pos_prompt.replace("in the style of {}", "")
+        prompt_null_sty = pos_prompt.copy()
+        prompt_null_sty = pos_prompt[0].replace(f" in the style of {placeholder_token}-T0", "")
         prompt_null_con = "A painting in the style of {}"
         prompt_null_con = [prompt_null_con.format(f"{placeholder_token}-T{t}") for t in range(num_stages)]
-        
         cross_attention_kwargs["prompt_null_style"] = prompt_null_sty
         cross_attention_kwargs["prompt_null_context"] = prompt_null_con
 
+    print(cross_attention_kwargs)
     outputs = []
-    for _ in range(num_samples):
-        outputs.append(pipeline(
+    for i in range(num_samples):
+        img = pipeline(
             prompt=pos_prompt,
             num_inference_steps=25,
             generator=generator,
             negative_prompt=neg_prompt,
             cross_attention_kwargs=cross_attention_kwargs,
-        ).images[0])
+        ).images[0]
+        imageio.imwrite(ospj(saveroot, f"{prompt.replace('in the style of {}', '')}_{i}.png"), img)
+        outputs.append(img)
 
     outputs = np.concatenate([np.asarray(img) for img in outputs], axis=1)
     save_path = ospj(saveroot, f"{prompt.replace('in the style of {}', '')}.png")

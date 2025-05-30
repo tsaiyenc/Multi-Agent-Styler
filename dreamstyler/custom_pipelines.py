@@ -109,7 +109,7 @@ def func_call_stable_diffusion_pipeline(
                 prompt_nc_t,
                 device,
                 num_images_per_prompt,
-                do_classifier_free_guidance=False,
+                do_classifier_free_guidance=True,
                 negative_prompt=None,
                 prompt_embeds=None,
                 negative_prompt_embeds=None,
@@ -118,16 +118,16 @@ def func_call_stable_diffusion_pipeline(
             _prompt_nc_embeds.append(_prompt_nc_embeds_t)
         prompt_nc_embeds = _prompt_nc_embeds
 
-        prompt_ns_t = cross_attention_kwargs["prompt_null_style"]
-        prompt_ns_embeds = self._encode_prompt(
-            prompt_ns_t,
+        prompt_ns_embed = self._encode_prompt(
+            cross_attention_kwargs["prompt_null_style"],
             device,
             num_images_per_prompt,
-            do_classifier_free_guidance=False,
+            do_classifier_free_guidance=True,
             negative_prompt=None,
             prompt_embeds=None,
             negative_prompt_embeds=None,
-       )
+            lora_scale=text_encoder_lora_scale,
+        )
 
     # 4. Prepare timesteps
     self.scheduler.set_timesteps(num_inference_steps, device=device)
@@ -183,18 +183,19 @@ def func_call_stable_diffusion_pipeline(
 
             # DreamStyler: predict noise residual for guidance prompts
             if use_sc_guidance:
-                prompt_guided_embeds = torch.cat(
-                    [prompt_ns_embeds, prompt_nc_embeds[index_stage]],
-                    dim=0,
-                )
-
-                noise_pred_guided = self.unet(
+                noise_pred_ns = self.unet(
                     latent_guided_model_input,
                     t,
-                    encoder_hidden_states=prompt_guided_embeds,
+                    encoder_hidden_states=prompt_ns_embed,
                     return_dict=False,
-                ).sample
-                noise_pred_ns, noise_pred_nc = noise_pred_guided.chunk(2)
+                )[0]
+                
+                noise_pred_nc = self.unet(
+                    latent_guided_model_input,
+                    t,
+                    encoder_hidden_states=prompt_nc_embeds[index_stage],
+                    return_dict=False,
+                )[0]
 
             # perform guidance
             if do_classifier_free_guidance:
@@ -202,10 +203,10 @@ def func_call_stable_diffusion_pipeline(
 
                 if use_sc_guidance:
                     noise_pred = noise_pred_uncond + \
-                        0.5 * con_gamma * (noise_pred_ns - noise_pred_uncond) + \
-                        0.5 * sty_gamma * (noise_pred_text - noise_pred_ns) + \
-                        0.5 * sty_gamma * (noise_pred_nc - noise_pred_uncond) + \
-                        0.5 * con_gamma * (noise_pred_text - noise_pred_nc) + \
+                        0.5 * con_gamma * (noise_pred_ns[1] - noise_pred_uncond) + \
+                        0.5 * sty_gamma * (noise_pred_text - noise_pred_ns[1]) + \
+                        0.5 * sty_gamma * (noise_pred_nc[1] - noise_pred_uncond) + \
+                        0.5 * con_gamma * (noise_pred_text - noise_pred_nc[1]) + \
                         neg_gamma * (noise_pred_text - noise_pred_uncond)
                 else:
                     noise_pred = noise_pred_uncond + \
@@ -309,7 +310,7 @@ def func_call_controlnet_img2img_pipeline(
     control_guidance_end: Union[float, List[float]] = 1.0,
 ):
     # controlnet = self.controlnet._orig_mod if is_compiled_module(self.controlnet) else self.controlnet
-    controlnet = self.controlnet._orig_mod if hasattr(self.controlnet, '_orig_mod') else self.controlnet
+    controlnet = getattr(self.controlnet, "_orig_mod", self.controlnet)
 
     # align format for control guidance
     if not isinstance(control_guidance_start, list) and isinstance(control_guidance_end, list):
