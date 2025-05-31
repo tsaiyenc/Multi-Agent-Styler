@@ -7,7 +7,7 @@
 ├── prompt/            # prompts (TXT files)
 ├── dreamstyler/       # codes of DreamStyler
 ├── images/            # style images, sample image and prompts from DreamStyler
-├── log/               # logs for training (should not be uploaded to GitHub?)
+├── log/               # logs for training
 ├── detected_images/   # style images object detection (bounding-box and cropped images)
 ├── outputs/           # output images and embeddings
 ├── local/             # local files (will not be uploaded to GitHub)
