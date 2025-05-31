@@ -1,0 +1,264 @@
+Image_Number,Content Descripter,Object Fetcher,Object Prompt Generator,Object Position Analyzer
+01,"The image contains the following objects:
+
+1. A blue door with a handle and a rectangular window grate.
+2. A blue window with wooden shutters.
+3. A terracotta pot.
+4. A flowering plant with green leaves and pink blooms.","[""a blue door"", ""a window with blue shutters"", ""a flower pot"", ""a plant with pink flowers""]","A blue door with a small window at the top, a blue window with a curved top, and a flower pot containing a plant with pink flowers.","[
+    {""object"": ""a blue door"", ""position"": ""in the center-left""},
+    {""object"": ""a blue window"", ""position"": ""above the blue door""},
+    {""object"": ""a flower pot with flowers"", ""position"": ""to the right of the blue door, slightly below the level of the door""}
+]"
+02,"The image contains the following objects:
+
+1. Several tall buildings with various facades.
+2. A traffic light displayed with red.
+3. Vehicles, including cars and a truck, occupying the roadway.
+4. Pedestrians walking, some in groups and others individually.
+5. A person on a bicycle.
+6. Road markings, including lanes and crosswalks.
+7. Street furniture, such as streetlights and signs. 
+
+These objects are arranged to depict a busy urban street scene.","[""traffic light"", ""cars"", ""bicycle"", ""people walking"", ""buildings"", ""billboards"", ""sidewalks"", ""road"" ]","The image includes several elements: 
+
+- Multiple figures, including pedestrians and individuals on bicycles.
+- A variety of vehicles, including cars and a truck.
+- Traffic lights.
+- A large electronic billboard.
+- Street signs.
+- Sidewalks with people walking.
+- A circular area in the street where one individual stands.","[
+    {""object"": ""traffic light"", ""position"": ""above the center of the image""},
+    {""object"": ""large building with a sign"", ""position"": ""in the center of the image""},
+    {""object"": ""cars"", ""position"": ""in the middle and bottom-right areas""},
+    {""object"": ""bicycle"", ""position"": ""to the left of the center""},
+    {""object"": ""pedestrians"", ""position"": ""scattered throughout the middle and bottom of the image""},
+    {""object"": ""truck"", ""position"": ""in the bottom middle area""},
+    {""object"": ""street"", ""position"": ""horizontal across the bottom""},
+    {""object"": ""tree-like structure"", ""position"": ""to the left of the center""}
+]"
+03,"The image contains several fruits arranged on a surface. The objects include:
+
+- Three round orange fruits
+- One green fruit
+- One yellowish-green pear
+- A white cloth with red and green patterns draped underneath the fruits
+- A wooden or metallic knife positioned beside the fruits
+
+These objects are grouped closely together, with the cloth providing a background for the arrangement.","[""a green pear"", ""a red apple"", ""an orange"", ""a green apple"", ""a white cloth""]","The image contains a pear, three round fruits (two reddish-orange and one green), and a partially visible cloth. There is also a wooden object, possibly a spoon or other utensil, next to the fruits. The arrangement includes the pear positioned slightly in front of the round fruits, which are grouped together. The cloth is draped beside the fruits, with some visible folds.","[
+    {""object"": ""a green pear"", ""position"": ""on the left side""},
+    {""object"": ""an orange"", ""position"": ""to the right of the green pear""},
+    {""object"": ""another orange"", ""position"": ""to the right of the first orange""},
+    {""object"": ""a green apple"", ""position"": ""to the right of the second orange""},
+    {""object"": ""a piece of cloth"", ""position"": ""above the fruits""}
+]"
+04,"The image contains the following objects:
+
+1. **Buildings**: Several buildings line the street, with varying heights and architectural features.
+   - The buildings have windows, some of which are open.
+   - There are noticeable roof structures, including gabled roofs.
+   - One building features a chimney.
+
+2. **Street**: A curving street is visible, lined by the buildings on either side.
+
+3. **Lamp Post**: A lamp post is positioned on the left side of the street.
+
+4. **Doorways**: Multiple doorways are present along the buildings, with different designs.
+
+5. **Road Surface**: The street appears to have a cobbled or textured surface.
+
+Overall, the composition emphasizes the urban layout of the buildings and the street.","[""buildings"", ""lamp post"", ""chimney"", ""street""]","The image contains the following objects:
+
+- Multiple buildings with varying heights and shapes, including gable roofs and chimneys.
+- Windows on the buildings, some with shutters.
+- A street that curves between the buildings.
+- A lantern attached to one side of a building.
+- Cobblestone pavement on the street.","[
+    {""object"": ""a street lamp"", ""position"": ""on the left side of the image""},
+    {""object"": ""a building"", ""position"": ""on the left side, slightly curved towards the bottom""},
+    {""object"": ""a building"", ""position"": ""on the right side, slightly taller than the one on the left""},
+    {""object"": ""a chimney"", ""position"": ""at the top of the building on the right""},
+    {""object"": ""a street"", ""position"": ""leading from the bottom center to the top""},
+    {""object"": ""windows"", ""position"": ""on the buildings to the left and right""}
+]"
+05,"The image contains:
+
+1. Several boats, including:
+   - A large steamship with smokestacks and steam coming out.
+   - Smaller boats, possibly rowboats or fishing boats.
+   - A sailboat with a triangular sail.
+
+2. A bridge, characterized by its arches and horizontal structure.
+
+3. Pillars or pylons along the water's edge, suggesting dock or pier structures.
+
+4. Smoke or steam rising from various points, indicating activity or engines at work.
+
+5. Flags on some boats, potentially signaling or identifying them. 
+
+6. Rippling water, reflecting light and movement. 
+
+There are no additional elements or contextual details described.","[""a bridge"", ""boats"", ""a dock"", ""smoke"", ""sailing boat"", ""flagged poles""]","The image contains several boats in a body of water, including steamers with smoke emitting from their stacks, smaller boats, and a sailboat. There is a bridge in the background connecting two landmasses. Additionally, there are poles with flags, hinting at a port or dock area. The scene suggests various activities occurring on the water, such as movement among the boats.","[
+    {""object"": ""a bridge"", ""position"": ""in the upper center""},
+    {""object"": ""steam boats"", ""position"": ""in the middle-left""},
+    {""object"": ""sailboats"", ""position"": ""toward the bottom-right""},
+    {""object"": ""smoke"", ""position"": ""rising from the boats""},
+    {""object"": ""small boats"", ""position"": ""scattered in the water""},
+    {""object"": ""pier"", ""position"": ""in the middle-left""}
+]"
+06,"The image features the following objects:
+
+1. **Women**: Four women are present in varying postures.
+   - One woman is seated with a sheet of music in her hands.
+   - Another woman is playing a violin.
+   - A third woman is seated at a piano.
+   - The fourth woman is seated beside the first, appearing engaged with her.
+
+2. **Piano**: A grand piano with sheet music displayed on it.
+
+3. **Musical Sheet**: Multiple sheets of music, partially visible.
+
+4. **Chair**: A wooden chair used by the woman playing the piano.
+
+5. **Candles**: Two candles positioned on the piano.
+
+6. **Decorative Items**: A decorative vase and a flower arrangement are placed on a nearby surface.
+
+7. **Curtains**: Flowing fabric elements that partially drape in the scene.
+
+8. **Floor Covering**: A rug is visible beneath the women.
+
+9. **Clothing**: Each woman is wearing distinct dresses, featuring various colors and styles.
+
+10. **Instruments**: A violin is present, held by one of the women. 
+
+These objects collectively convey a scene of musical engagement among the women.","[""a woman playing violin"", ""a piano"", ""music sheets"", ""a candelabra"", ""a chair"", ""a woman sitting with sheet music"", ""a woman in a red dress"", ""a woman in a white dress"", ""a decorative vase"", ""a plant""]","The image features several objects and figures: 
+
+1. A woman playing a violin.
+2. A grand piano with sheet music on it.
+3. Two candles on the piano.
+4. A woman seated at the piano.
+5. A woman sitting in a chair with a sheet of music in her hands.
+6. Several other women seated nearby, interacting with each other.
+7. A decorative chair where one of the women is seated.
+8. A rug on the floor. 
+9. A decorative vase positioned near the piano. 
+10. A plant in a pot, positioned prominently.","[
+    {""object"": ""a woman sitting on a chair"", ""position"": ""in the bottom-left corner""},
+    {""object"": ""a piano"", ""position"": ""in the center of the image""},
+    {""object"": ""a woman playing a violin"", ""position"": ""to the right of the piano""},
+    {""object"": ""a woman sitting at the piano"", ""position"": ""behind the piano""},
+    {""object"": ""a woman sitting on the right"", ""position"": ""to the right of the woman playing the violin""},
+    {""object"": ""sheet music"", ""position"": ""on the piano""},
+    {""object"": ""candlesticks"", ""position"": ""to the left of the sheet music""}
+]"
+07,"The image contains the following objects:
+
+1. Buildings with multiple stories and balconies.
+2. A large banner hanging between buildings.
+3. Various people, including men, women, and children.
+4. Horse-drawn carriages and carts.
+5. Street vendors with stands selling various goods.
+6. Umbrellas for shade.
+7. A sign indicating a business establishment.
+8. Various items being sold, including fruits and vegetables.
+9. Streetlamps.
+
+Note: The arrangement of these objects suggests a busy street scene.","[""a woman sitting on a balcony"", ""a signboard"", ""a horse-drawn carriage"", ""a man holding an umbrella"", ""a fruit stand"", ""a cart"", ""people walking"", ""a man in a top hat"", ""a woman in a headscarf"", ""a canopy over a market stall"", ""multiple market stalls"", ""a street lamp""]","The image contains the following objects:
+
+1. Multiple buildings with balconies
+2. A sign with text
+3. A street lined with people
+4. Horse-drawn carts
+5. Market stalls
+6. A table with produce (fruits)
+7. Umbrellas
+8. People in various attire
+9. Carts
+10. A street lamp","[
+    {""object"": ""balconies"", ""position"": ""above the street level on the left side""},
+    {""object"": ""a banner"", ""position"": ""hanging across the street in the upper center""},
+    {""object"": ""market stalls"", ""position"": ""scattered along the street in the center""},
+    {""object"": ""people"", ""position"": ""throughout the street, moving and standing""},
+    {""object"": ""horses and carts"", ""position"": ""toward the center of the street""},
+    {""object"": ""umbrellas"", ""position"": ""above market stalls, providing shade""},
+    {""object"": ""advertisement signs"", ""position"": ""attached to buildings on the right side""},
+    {""object"": ""fruit"", ""position"": ""displayed on market stalls in the middle""},
+    {""object"": ""a street lamp"", ""position"": ""to the right, near the buildings""}
+]"
+08,"The image contains the following objects:
+
+1. **People**: There are several figures walking, some holding umbrellas. The figures exhibit a mix of attire.
+2. **Umbrellas**: Various umbrellas, primarily in shades of black and pink, are being used by several individuals.
+3. **Horses and Carriages**: A horse-drawn carriage is present, with a horse and driver leading it. 
+4. **Street Lamps**: A couple of street lamps are visible along the pathway.
+5. **Buildings**: Multiple buildings line the street, showing windows and rooftops but without detailed characteristics.
+6. **Water Feature**: A section of still water is depicted, likely a river or canal.
+7. **Smoke**: There is an indication of steam or smoke rising from a distant object, possibly a boat.
+
+These objects contribute to the setting depicted in the image.","[""people walking with umbrellas"", ""horses and carriages"", ""street lamps"", ""buildings"", ""water fountain"", ""steam from a boat""]","The image features a variety of objects, including:
+
+- Several individuals holding umbrellas.
+- A horse-drawn carriage positioned in the foreground.
+- People walking, some with umbrellas raised.
+- Gas lamps along the street.
+- Buildings of different sizes and shapes, likely shops or residences, lining the street.
+- A body of water with what appears to be steam rising from it.
+- A stone wall along the water's edge.
+- Various figures in different clothing styles.","[
+    {""object"": ""a horse-drawn carriage"", ""position"": ""in the bottom-left corner""},
+    {""object"": ""people walking with umbrellas"", ""position"": ""scattered throughout the center""},
+    {""object"": ""a man with a red umbrella"", ""position"": ""in the center-right""},
+    {""object"": ""street lamps"", ""position"": ""towards the middle-right""},
+    {""object"": ""buildings"", ""position"": ""in the background, along the top of the image""},
+    {""object"": ""water"", ""position"": ""in the bottom-right corner""},
+    {""object"": ""a plume of steam"", ""position"": ""to the right of the water""}
+]"
+09,"The image contains the following objects:
+
+1. A mosque with a large dome and a tall minaret.
+2. Several buildings with varying roof designs, primarily featuring sloped roofs.
+3. Trees, including one with a broad canopy and leaves.
+4. A small group of people, with at least one person visible walking on the pathway.
+5. A display of garments or materials hanging from a structure, possibly indicating a market area.
+6. Pathways or streets running through the scene. 
+
+No additional context or details are provided.","[""a mosque with a dome"", ""a minaret"", ""trees"", ""buildings with colored roofs"", ""people walking"", ""awnings"", ""a laundry line with clothes""]","The image contains the following objects:
+
+- A mosque with a prominent dome and a tall minaret.
+- Several buildings with varying roof styles, some featuring red rooftops and walls painted in different colors.
+- Two trees with green foliage.
+- Residential and possibly commercial structures, including one with a staircase leading up, and some adorned with cloths or banners. 
+- Figures of people, including one walking along a path.","[
+    {""object"": ""a tall minaret"", ""position"": ""on the left side, towards the top""},
+    {""object"": ""a dome building"", ""position"": ""to the right of the minaret, slightly below it""},
+    {""object"": ""a small tree"", ""position"": ""to the right of the dome building""},
+    {""object"": ""two houses"", ""position"": ""below the dome building, one on the left and one on the right""},
+    {""object"": ""a group of people"", ""position"": ""towards the center, walking between the houses""},
+    {""object"": ""clothes hanging"", ""position"": ""in front of the house on the left""},
+    {""object"": ""another tree"", ""position"": ""behind the houses, towards the right""}
+]"
+10,"The image contains the following objects:
+
+1. A figure sitting on the ground, with a white body highlighting an arm and a foot.
+2. A second figure, which appears to be reclining on a table with a blue and purple head.
+3. A table with an orange and yellow triangular object placed on it.
+4. A mirror or framed picture to the left of the table, featuring a red abstract design inside a black outline.
+5. A decorative vase with red and yellow flowers positioned on the table.  
+
+The arrangement suggests interaction between the figures and the objects, with the table serving as a central element.","[""a table"", ""a vase with flowers"", ""a mirror"", ""an abstract painting"", ""a reclining figure"", ""a seated figure"", ""a book""]","The image contains the following objects:
+
+- A rectangular framed mirror with a red and black design.
+- A table with a purple and blue object resting on it.
+- A vase with an arrangement of red flowers.
+- A person seated on the floor, with one arm resting on their knee and the other holding a yellow object.
+- A second person lying on the table, depicted with abstract features.
+- A blue mat beneath the seated person.
+- A foot of the seated person, which is green.","[
+    {""object"": ""a table"", ""position"": ""in the center of the image""},
+    {""object"": ""a vase with flowers"", ""position"": ""on the table, towards the top""},
+    {""object"": ""a reclining figure"", ""position"": ""on the table, towards the left""},
+    {""object"": ""a framed picture"", ""position"": ""to the left of the table""},
+    {""object"": ""a woman sitting"", ""position"": ""to the right of the table, at the bottom-right corner""},
+    {""object"": ""a piece of paper"", ""position"": ""in the woman's hands, facing towards the viewer""}
+]"
