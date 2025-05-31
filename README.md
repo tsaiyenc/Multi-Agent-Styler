@@ -1,3 +1,24 @@
+# The Birth of a Masterpiece by a MultiAgent System
+
+## Folder Architecture
+```
+.
+├── agents/            # codes of agents
+├── prompt/            # prompts (TXT files)
+├── dreamstyler/       # codes of DreamStyler
+├── images/            # style images, sample image and prompts from DreamStyler
+├── log/               # logs for training
+├── detected_images/   # style images object detection (bounding-box and cropped images)
+├── outputs/           # output images and embeddings
+├── local/             # local files (will not be uploaded to GitHub)
+├── test/              # test files (will not be uploaded to GitHub)
+├── assets/            # assets for README
+├── LICENSE
+├── NOTICE
+├── README.md
+└── environment.yaml
+```
+
 
 --------- dream styler -------
 
