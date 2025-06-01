@@ -43,50 +43,50 @@ def local_image_to_data_url(image_path):
     return f"data:{mime_type};base64,{base64_encoded_data}"
 
 # === Agent Definitions ===
-# === Critique Agent ===
-critique = ConversableAgent(
-    name="CritiqueAgent",
+# === StyleCritique Agent ===
+style_critique = ConversableAgent(
+    name="StyleCritiqueAgent",
     system_message=(
         '''
         You are an art style expert and a expert painter.
         Your job is to evaluate how closely the style of the given image matches the style of the given style image.
         Consider color palette, brush strokes, lighting, composition, and overall aesthetic cohesion.
         Only focus on the style of the image, not the content or image quality.
-        You will disccuss with ScorerAgent about the score of style, if you disagree the score, you will provide your score and reasoning.
+        You will disccuss with ReviewerAgent about the score of style, if you disagree the score, you will provide your score and reasoning.
         score range: 0-10. If the style of two images are the same, the score should be 10. If the style of two images are totally different, the score should be 0.
-        If you receive more than one score, you will tell the ScorerAgent which one you prefer.
+        If you receive more than one score, you will tell the ReviewerAgent which one you prefer.
         '''
     ),
     llm_config=LLM_CFG,
 )
 
-# === Analyzer Agent ===
-analyzer = ConversableAgent(
-    name="AnalyzerAgent",
+# === ContentAnalyzer Agent ===
+content_analyzer = ConversableAgent(
+    name="ContentAnalyzerAgent",
     system_message=(
         '''
         You are a content analysis expert.
         Your role is to analyze whether the given image is the same as the given content.
         Only focus on the content of the image, not the style or image quality.
-        You will disccuss with ScorerAgent about the score of context, if you disagree the score, you will provide your score and reasoning.
+        You will disccuss with ReviewerAgent about the score of context, if you disagree the score, you will provide your score and reasoning.
         score range: 0-10. If the content of two images are the same, the score should be 10. If the content of two images are totally different, the score should be 0.
-        If you receive more than one score, you will tell the ScorerAgent which one you prefer.
+        If you receive more than one score, you will tell the ReviewerAgent which one you prefer.
         '''
     ),
     llm_config=LLM_CFG,
 )
 
-# === Scorer Agent ===
-scorer = ConversableAgent(
-    name="ScorerAgent",
+# === Reviewer Agent ===
+reviewer = ConversableAgent(
+    name="ReviewerAgent",
     system_message=(
         '''
         You are the helper on giving the score.
         You will receive a analysis of image:
-        - if from CritiqueAgent: The style analysis and how the image matches the given style.
-        - if from AnalyzerAgent: The content analysis and how the image matches the given content.
+        - if from StyleCritiqueAgent: The style analysis and how the image matches the given style.
+        - if from ContentAnalyzerAgent: The content analysis and how the image matches the given content.
         Your job is to propose ONLY ONE score of 0-10 (0: worst match, 10: best match), and why you give this score.
-        You will disccuss with CritiqueAgent or AnalyzerAgent about the score.
+        You will disccuss with StyleCritiqueAgent or ContentAnalyzerAgent about the score.
         '''
     ),
     llm_config=LLM_CFG,
@@ -99,7 +99,7 @@ summarizer = ConversableAgent(
     system_message=(
         '''
         You are an image feedback summarizer. 
-        Given a debate summary from the ScorerAgent about the aesthetic, style, and context of a target image, 
+        Given a debate summary from the ReviewerAgent about the aesthetic, style, and context of a target image, 
         your task is to extract and propose:
         1. A concise target style description
         2. A concise target context description
@@ -117,7 +117,7 @@ summarizer = ConversableAgent(
 
 # === Pipeline runner ===
 # === Debate ===
-def run_debate(score_type, evaluator, scorer, img_url, reference, rounds=3, history_logger=None):
+def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, history_logger=None):
     print(f"\n===== Starting {score_type} Debate =====")
 
     initial_prompt = {
@@ -153,21 +153,21 @@ def run_debate(score_type, evaluator, scorer, img_url, reference, rounds=3, hist
         message_history.append(response_evaluator)
         print(f"\n{evaluator.name}:\n{response_evaluator['content']}")
 
-        # Scorer's turn
-        response_scorer = scorer.generate_reply(message_history, return_message=True)
-        if isinstance(response_scorer, str):
-            response_scorer = {"role": "assistant", "name": scorer.name, "content": response_scorer}
-        message_history.append(response_scorer)
-        print(f"\n{scorer.name}:\n{response_scorer['content']}")
+        # Reviewer's turn
+        response_reviewer = reviewer.generate_reply(message_history, return_message=True)
+        if isinstance(response_reviewer, str):
+            response_reviewer = {"role": "assistant", "name": reviewer.name, "content": response_reviewer}
+        message_history.append(response_reviewer)
+        print(f"\n{reviewer.name}:\n{response_reviewer['content']}")
 
     print(f"\n===== End of {score_type} Debate =====")
 
     # Final summary
-    final_summary = scorer.generate_reply(message_history, return_message=True)
+    final_summary = reviewer.generate_reply(message_history, return_message=True)
     if isinstance(final_summary, str):
-        final_summary = {"role": "assistant", "name": scorer.name, "content": final_summary}
+        final_summary = {"role": "assistant", "name": reviewer.name, "content": final_summary}
 
-    print(f"\nFinal {score_type} Score Summary from {scorer.name}:\n{final_summary['content']}\n")
+    print(f"\nFinal {score_type} Score Summary from {reviewer.name}:\n{final_summary['content']}\n")
     
     # Put logger history
     if history_logger:
@@ -179,8 +179,8 @@ def run_debate(score_type, evaluator, scorer, img_url, reference, rounds=3, hist
 def summarize_guidance_from_score(sytle_score_summary:dict, context_score_summary:dict):
     summary_prompt = [
         {"role": "user", "content": "Based on the following scoring summary, extract ideal descriptions for STYLE and CONTEXT."},
-        {"role": "assistant", "name": "ScorerAgent", "content": sytle_score_summary["content"]},
-        {"role": "assistant", "name": "ScorerAgent", "content": context_score_summary["content"]}
+        {"role": "assistant", "name": "ReviewerAgent", "content": sytle_score_summary["content"]},
+        {"role": "assistant", "name": "ReviewerAgent", "content": context_score_summary["content"]}
     ]
 
     summary_response = summarizer.generate_reply(summary_prompt, return_message=True)
@@ -216,8 +216,8 @@ if __name__ == "__main__":
     from logger import HistoryLogger
     history_logger = HistoryLogger(HISTORY_LOGGER_PATH)
 
-    style_score_summary = run_debate("Style", critique, scorer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=TOTAL_ROUNDS, history_logger = history_logger)
-    context_score_summary = run_debate("Context", analyzer, scorer, GENERATED_IMG_URL, ORIGINAL_PROMPT, rounds=TOTAL_ROUNDS, history_logger = history_logger)
+    style_score_summary = run_debate("Style", style_critique, reviewer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=TOTAL_ROUNDS, history_logger = history_logger)
+    context_score_summary = run_debate("Context", content_analyzer, reviewer, GENERATED_IMG_URL, ORIGINAL_PROMPT, rounds=TOTAL_ROUNDS, history_logger = history_logger)
 
     print("Style Score Content:\n", style_score_summary["content"])
     print("Context Score Content:\n", context_score_summary["content"])
