@@ -1,0 +1,11 @@
+01.png, A painting of two blue doors, a potted plant with pink flowers, splattered paint, in the style of {}
+02.png, A painting of a bustling city street, tall buildings, cars, pedestrians, traffic lights, in the style of {}
+03.png, A painting of apples, pears, tablecloth, abstract background, in the style of {}
+04.png, A painting of a narrow street, old buildings, a lamp post, a sign, in the style of {}
+05.png, A painting of a river scene, boats, a bridge, trees, people, in the style of Seurat, in the style of {}
+06.png, A painting of women in elegant dresses, one playing violin, another reading, others listening, piano, flowers, ornate wallpaper, in the style of {}
+07.png, A painting of a bustling street market, people shopping, vendors selling goods, buildings lining both sides, in the style of {}
+08.png, A painting of a bustling city street, pedestrians with umbrellas, horse-drawn carriages, buildings, a bridge, steam, in the style of {}
+09.png, A painting of a mosque, trees, buildings, people walking, in the style of {}
+10.png, A painting of a reclining figure, a framed abstract artwork, a vase with flowers, a geometric background, in the style of Picasso, in the style of {}
+city.png, A painting of a cityscape at dusk, tall buildings, illuminated windows, urban streets, in the style of {}
