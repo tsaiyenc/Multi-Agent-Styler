@@ -10,6 +10,34 @@ pip install git+https://github.com/openai/CLIP.git
 conda env update --file environment.yaml --prune
 ```
 
+### Run the overall pipeline code
+```bash
+bash script/RUN-pipeline.sh \
+    [-g <GPU ID>] \
+    [-m <SD model>] \
+    [-e <Embedding path>] \
+    [-o <Output DIR>] \
+    [-a <Number of images that SD generates after debate>] \
+    [-b <Number of images that SD generates before debate>] \
+    [-s <Style image path>] \
+    [-p <Prompt>] \
+    [--prompt-logger <Path to save prompt suggestions>] \
+    [--history-logger <Path to save debate history>] \
+```
+
+Optional parameters:
+- `-g`: GPU ID (default: 0)
+- `-m`: SD model (default: "runwayml/stable-diffusion-v1-5")
+- `-e`: Embedding path (default: "outputs/attention-mid0.25-js/attention06/embedding/final.bin")
+- `-o`: Output DIR (default: "outputs/attention-mid0.25-js/attention06")
+- `-a`: Number of images that SD generates after debate (default: 1)
+- `-b`: Number of images that SD generates before debate (default: 5)
+- `-s`: Style image path (default: images/06.png)
+- `-p`: Prompt (default: a painting of a dog)
+- `--prompt-logger`：Path to save prompt suggestions (default: "prompt.csv")
+- `--history-logger`：Path to save debate history (default: "history.json")
+
+
 ### Run the multi-agent system debate
 ```bash
 python agents/debate_image_rounds.py \
@@ -44,6 +72,7 @@ Optional parameters:
 ├── local/             # local files (will not be uploaded to GitHub)
 ├── test/              # test files (will not be uploaded to GitHub)
 ├── assets/            # assets for README
+├── script/            # scripts for pipeline
 ├── LICENSE
 ├── NOTICE
 ├── README.md

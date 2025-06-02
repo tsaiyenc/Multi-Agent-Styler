@@ -8,8 +8,8 @@ NUM_SAMPLES_BEFORE=1
 NUM_SAMPLES_AFTER=5
 STYLE_IMAGE="images/06.png"
 PROMPT="a painting of a dog"
-PROMPT_LOGGER="prompt"
-HISTORY_LOGGER="history"
+PROMPT_LOGGER="prompt.csv"
+HISTORY_LOGGER="history.json"
 
 function show_help {
     echo "Usage: $0 [OPTIONS]"
