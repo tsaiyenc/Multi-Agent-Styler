@@ -1,9 +1,15 @@
 import os
-from autogen import ConversableAgent
-# from autogen import config_list_from_json
+from autogen import ConversableAgent, register_function
 from mimetypes import guess_type
 import base64
 import json
+import torch
+import clip
+from PIL import Image
+import torchvision.transforms as transforms
+from torchvision.models import vgg19
+from torch.nn.functional import mse_loss
+
 # === LLM Configuration ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "sk-proj-").strip()
 LLM_CFG = {
@@ -15,6 +21,21 @@ LLM_CFG = {
         }
     ]
 }
+
+# === Device ===
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# === CLIP Model ===
+clip_model, clip_preprocess = clip.load("ViT-B/32", device=device)
+
+# === VGG Model ===
+vgg = vgg19(pretrained=True).features[:21].to(device).eval()
+
+# === VGG Transform ===
+vgg_transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
 
 # === Some helper functions ===
 # === Image preprocess function ===
@@ -42,19 +63,122 @@ def local_image_to_data_url(image_path):
     base64_encoded_data = base64.b64encode(preprocessed_image).decode('utf-8')
     return f"data:{mime_type};base64,{base64_encoded_data}"
 
+# === Evaluate Functions ===
+# === Style Score ===
+def evaluate_style_score(image: str, style_image: str) -> float:
+    """Evaluate the style similarity between two images.
+    Args:
+        image (str): The URL or path of the generated image
+        style_image (str): The URL or path of the reference style image
+    Returns:
+        float: The style similarity score (0-10)
+    """
+    # If it's a URL, download the image first
+    if image.startswith('data:'):
+        import base64
+        import io
+        # Extract base64 data from the data URL
+        image_data = image.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+        gen_img = Image.open(io.BytesIO(image_bytes))
+    else:
+        gen_img = Image.open(image)
+        
+    if style_image.startswith('data:'):
+        import base64
+        import io
+        # Extract base64 data from the data URL
+        style_data = style_image.split(',')[1]
+        style_bytes = base64.b64decode(style_data)
+        style_img = Image.open(io.BytesIO(style_bytes))
+    else:
+        style_img = Image.open(style_image)
+
+    gen_img = vgg_transform(gen_img).unsqueeze(0).to(device)
+    style_img = vgg_transform(style_img).unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        gen_feat = vgg(gen_img)  # Extract features from the generated image
+        style_feat = vgg(style_img)  # Extract features from the style image
+        mse = mse_loss(gen_feat, style_feat).item()  # Calculate the mean square error between the two features
+        # Convert the MSE score to the 0-10 range
+        # The smaller the MSE, the more similar the style, so use 1/(1+mse) to convert
+        # When mse=0, the score is 10; when mse approaches infinity, the score approaches 0
+        score = 10 * (1 / (1 + mse))  # Convert the score to the 0-10 range
+    return score
+
+# === Context Score ===
+def evaluate_context_score(image: str, context: str) -> float:
+    """Evaluate the context similarity between an image and a text description.
+    Args:
+        image (str): The URL or path of the image
+        context (str): The text description    
+    Returns:
+        float: The context similarity score (0-10)
+    """
+    # If it's a URL, download the image first
+    if image.startswith('data:'):
+        import base64
+        import io
+        # Extract base64 data from the data URL
+        image_data = image.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+        img = Image.open(io.BytesIO(image_bytes))
+    else:
+        img = Image.open(image)
+
+    image = clip_preprocess(img).unsqueeze(0).to(device)
+    context = clip.tokenize([context]).to(device)
+
+    with torch.no_grad():
+        image_feat = clip_model.encode_image(image)  # Extract image features
+        context_feat = clip_model.encode_text(context)  # Extract text features
+        image_feat /= image_feat.norm(dim=-1, keepdim=True)  # Normalize image features
+        context_feat /= context_feat.norm(dim=-1, keepdim=True)  # Normalize text features
+        similarity = (image_feat @ context_feat.T).item()  # Calculate the cosine similarity
+        # Convert the cosine similarity (-1,1) to the 0-10 range
+        # When the similarity is 1, the score is 10; when the similarity is -1, the score is 0
+        score = 5 * (similarity + 1)  # Convert the score to the 0-10 range
+    return score
+
 # === Agent Definitions ===
 # === StyleCritique Agent ===
 style_critique = ConversableAgent(
     name="StyleCritiqueAgent",
     system_message=(
         '''
-        You are an art style expert and a expert painter.
-        Your job is to evaluate how closely the style of the given image matches the style of the given style image.
-        Consider color palette, brush strokes, lighting, composition, and overall aesthetic cohesion.
-        Only focus on the style of the image, not the content or image quality.
-        You will disccuss with ReviewerAgent about the score of style, if you disagree the score, you will provide your score and reasoning.
-        score range: 0-10. If the style of two images are the same, the score should be 10. If the style of two images are totally different, the score should be 0.
-        If you receive more than one score, you will tell the ReviewerAgent which one you prefer.
+        You are an art style expert and professional painter. Your expertise lies in analyzing and comparing artistic styles.
+        
+        Your primary responsibilities:
+        1. Analyze the style of the given image in detail, focusing on:
+           - Color palette and color harmony
+           - Brush stroke techniques and texture
+           - Lighting and shadow effects
+           - Composition and visual balance
+           - Overall aesthetic style and artistic approach
+        
+        2. Compare the style with the reference image and provide:
+           - Detailed analysis of style similarities and differences
+           - Specific observations about artistic techniques
+           - Professional assessment of style consistency
+        
+        3. When evaluating, consider:
+           - Technical execution of the style
+           - Artistic coherence and consistency
+           - Style-specific elements and characteristics
+        
+        4. Calculate the style score:
+           - Use the evaluate_style_score function to get an objective score
+           - When calling evaluate_style_score, you must provide two parameters:
+             * image: the URL of the generated image
+             * style_image: the URL of the reference style image
+           - Consider this score in your analysis
+           - Explain how the score aligns with your observations
+        
+        You will engage in a professional debate with the ReviewerAgent about your style analysis.
+        If you disagree with their assessment, provide your detailed reasoning and evidence.
+        
+        Remember: Focus solely on style aspects, not content or image quality.
         '''
     ),
     llm_config=LLM_CFG,
@@ -65,12 +189,41 @@ content_analyzer = ConversableAgent(
     name="ContentAnalyzerAgent",
     system_message=(
         '''
-        You are a content analysis expert.
-        Your role is to analyze whether the given image is the same as the given content.
-        Only focus on the content of the image, not the style or image quality.
-        You will disccuss with ReviewerAgent about the score of context, if you disagree the score, you will provide your score and reasoning.
-        score range: 0-10. If the content of two images are the same, the score should be 10. If the content of two images are totally different, the score should be 0.
-        If you receive more than one score, you will tell the ReviewerAgent which one you prefer.
+        You are a content and context analysis expert specializing in visual content evaluation.
+        
+        Your primary responsibilities:
+        1. Analyze the content and context of the given image in detail, focusing on:
+           - Main subjects and objects (content)
+           - Scene composition and setting (context)
+           - Action or narrative elements (content)
+           - Contextual elements and details (context)
+           - Overall content and context coherence
+        
+        2. Compare the content and context with the given description and provide:
+           - Detailed analysis of content alignment
+           - Specific observations about key elements
+           - Professional assessment of content and context accuracy
+           - Evaluation of how well the image matches the intended message
+        
+        3. When evaluating, consider:
+           - Accuracy of depicted elements (content)
+           - Completeness of content representation
+           - Clarity of visual communication
+           - Contextual relevance and appropriateness
+           - Overall message coherence
+        
+        4. Calculate the context score:
+           - Use the evaluate_context_score function to get an objective score
+           - When calling evaluate_context_score, you must provide two parameters:
+             * image: the URL of the generated image
+             * context: the text description of the intended content
+           - Consider this score in your analysis
+           - Explain how the score aligns with your observations
+        
+        You will engage in a professional debate with the ReviewerAgent about your content and context analysis.
+        If you disagree with their assessment, provide your detailed reasoning and evidence.
+        
+        Remember: Focus on both content (what is shown) and context (how it relates to the intended message), not the style or the image quality.
         '''
     ),
     llm_config=LLM_CFG,
@@ -81,12 +234,33 @@ reviewer = ConversableAgent(
     name="ReviewerAgent",
     system_message=(
         '''
-        You are the helper on giving the score.
-        You will receive a analysis of image:
-        - if from StyleCritiqueAgent: The style analysis and how the image matches the given style.
-        - if from ContentAnalyzerAgent: The content analysis and how the image matches the given content.
-        Your job is to propose ONLY ONE score of 0-10 (0: worst match, 10: best match), and why you give this score.
-        You will disccuss with StyleCritiqueAgent or ContentAnalyzerAgent about the score.
+        You are a critical reviewer and debate moderator for image analysis.
+        
+        Your primary responsibilities:
+        1. Review and evaluate the analysis provided by either StyleCritiqueAgent or ContentAnalyzerAgent:
+           - Assess the thoroughness of their analysis
+           - Evaluate the validity of their observations
+           - Consider the technical accuracy of their assessment
+        
+        2. Engage in constructive debate:
+           - Challenge assumptions when necessary
+           - Request clarification on unclear points
+           - Provide alternative perspectives
+           - Support or refute claims with evidence
+        
+        3. Maintain professional discourse:
+           - Focus on objective analysis
+           - Avoid personal bias
+           - Consider multiple viewpoints
+           - Build consensus when possible
+        
+        4. Final assessment:
+           - Synthesize the debate points
+           - Provide a clear, justified conclusion
+           - Highlight key areas of agreement/disagreement
+           - Suggest areas for improvement if needed
+        
+        Your goal is to ensure a thorough, objective, and constructive analysis of the image.
         '''
     ),
     llm_config=LLM_CFG,
@@ -115,14 +289,38 @@ summarizer = ConversableAgent(
     llm_config=LLM_CFG,
 )
 
+# === Register Functions ===
+register_function(
+    evaluate_style_score,
+    caller=style_critique,
+    executor=reviewer,
+    name="evaluate_style_score",
+    description="Evaluate the style similarity between two images using VGG features.",
+)
+
+register_function(
+    evaluate_context_score,
+    caller=content_analyzer,
+    executor=reviewer,
+    name="evaluate_context_score",
+    description="Evaluate the context similarity between an image and a text description using CLIP features.",
+)
+
 # === Pipeline runner ===
 # === Debate ===
 def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, history_logger=None):
     print(f"\n===== Starting {score_type} Debate =====")
 
+    # # Calculate initial score
+    # if score_type == "Style":
+    #     score = evaluate_style_score(img_url, reference)
+    # elif score_type == "Context":
+    #     score = evaluate_context_score(img_url, reference)
+
     initial_prompt = {
         "role": "user",
-        "content": "Evaluate the given image."
+        "content": f"""Debate on the image, and give a concise description of the {score_type} of the image."""
+# The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."""
     }
     message_history = [initial_prompt]
     
