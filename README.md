@@ -10,7 +10,34 @@ pip install git+https://github.com/openai/CLIP.git
 conda env update --file environment.yaml --prune
 ```
 
-### Run the overall pipeline code
+
+### Run the style token training code
+```bash
+bash script/RUN-pipeline.sh \
+    [-g <GPU ID>] \
+    [-m <SD model>] \
+    [-i <Image path>] \
+    [-c <Context>] \
+    [-o <Output DIR>] \
+    [-n <Negative prompt>] \
+    [-a <Attention loss type (js|kl|cosine)>] \
+    [--mid-loss <Unet cross attention mid_block contrastive loss weight>] \
+    [--down1-loss <Unet cross attention down_block.1 contrastive loss weight>] \
+```
+
+Optional parameters:
+- `-g`: GPU ID (default: 0)
+- `-m`: SD model (default: "runwayml/stable-diffusion-v1-5")
+- `-i`: Image path (default: "images/06.png")
+- `-c`: Context (default: "A painting of a woman in a blue dress playing a violin, alongside another woman in a red dress playing a piano behind the violinist, with women sitting in chairs, engrossed in listening to the music, in the style of {}")
+- `-o`: Output DIR (default: "outputs/attention-mid0.25-js/attention06")
+- `-n`: Negative prompt (default: "['woman', 'blue dress', 'violin', 'red dress', 'piano', 'women', 'chairs']")
+- `-a`: Attention loss type (js|kl|cosine) (default: "js)
+- `--mid-loss`：Unet cross attention mid_block contrastive loss weight (default: 0.25)
+- `--down1-loss`：Unet cross attention down_block.1 contrastive loss weight (default: 0.0)
+
+
+### Run the overall inference pipeline code
 ```bash
 bash script/RUN-pipeline.sh \
     [-g <GPU ID>] \
