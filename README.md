@@ -7,7 +7,7 @@
 conda create --name dreamstyler
 conda activate dreamstyler
 pip install git+https://github.com/openai/CLIP.git
-conda env update --file environment.yml --prune
+conda env update --file environment.yaml --prune
 ```
 
 ### Run the multi-agent system debate
