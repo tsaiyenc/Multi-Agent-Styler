@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 from torchvision.models import vgg19
 from torch.nn.functional import mse_loss
 import math
+import argparse
 
 # === LLM Configuration ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "sk-proj-").strip()
@@ -373,38 +374,41 @@ def summarize_guidance_from_score(sytle_score_summary:dict, context_score_summar
 
 # === Example usage ===
 if __name__ == "__main__":
-    ### Variables
-    PROMPT_LOGGER_PATH = "./test/prompt_suggestion.csv"
-    HISTORY_LOGGER_PATH = "./test/history_log.json"
-    TOTAL_ROUNDS = 3
-    # IMG_URL = "https://example.com/path/to/your/image.jpg"
-    GENERATED_IMG_PATH = "./outputs/list/list01/sample/A painting of a dog _2.png"
-    GENERATED_IMG_URL = local_image_to_data_url(GENERATED_IMG_PATH)
-    STYLE_IMG_PATH = "./images/01.png"
-    STYLE_IMG_URL = local_image_to_data_url(STYLE_IMG_PATH)
-    ORIGINAL_PROMPT = "A painting of a dog"
-    # SOURCE_PROMPTS = ['blah', 'blah2', 'blah3']  # Example source prompts, replace with actual prompts
-    # REFERENCE_STYLE = "Van Gogh"
-    # REFERENCE_CONTEXT = "childhood connection with nature"
-    # image_description = (
-    #     "This is a watercolor illustration of a little girl playing with a fox in a lush forest. "
-    #     "The target style is Studio Ghibli. The intended theme is 'childhood connection with nature'."
-    # )
+    ### Parse arguments
+    parser = argparse.ArgumentParser(description='Image evaluation pipeline with debate rounds')
+    parser.add_argument('--prompt-logger', type=str, default="./test/prompt_suggestion.csv",
+                      help='Path to save prompt suggestions')
+    parser.add_argument('--history-logger', type=str, default="./test/history_log.json",
+                      help='Path to save debate history')
+    parser.add_argument('--rounds', type=int, default=3,
+                      help='Number of debate rounds')
+    parser.add_argument('--generated-img', type=str, required=True,
+                      help='Path to the generated image')
+    parser.add_argument('--style-img', type=str, required=True,
+                      help='Path to the style reference image')
+    parser.add_argument('--prompt', type=str, required=True,
+                      help='Original prompt used for image generation')
+    
+    args = parser.parse_args()
+    
+    ### Convert image to data URL
+    GENERATED_IMG_URL = local_image_to_data_url(args.generated_img)
+    STYLE_IMG_URL = local_image_to_data_url(args.style_img)
     
     ### Running the pipeline
     print("Starting the image evaluation pipeline...")
     from logger import HistoryLogger
-    history_logger = HistoryLogger(HISTORY_LOGGER_PATH)
+    history_logger = HistoryLogger(args.history_logger)
 
-    style_score_summary = run_debate("Style", style_critique, reviewer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=TOTAL_ROUNDS, history_logger = history_logger)
-    context_score_summary = run_debate("Context", content_analyzer, reviewer, GENERATED_IMG_URL, ORIGINAL_PROMPT, rounds=TOTAL_ROUNDS, history_logger = history_logger)
+    style_score_summary = run_debate("Style", style_critique, reviewer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=args.rounds, history_logger = history_logger)
+    context_score_summary = run_debate("Context", content_analyzer, reviewer, GENERATED_IMG_URL, args.prompt, rounds=args.rounds, history_logger = history_logger)
 
     print("Style Score Content:\n", style_score_summary["content"])
     print("Context Score Content:\n", context_score_summary["content"])
 
     # Dump history logger
-    history_logger.log_history(target_image_url=GENERATED_IMG_PATH, total_rounds=TOTAL_ROUNDS)
-    print(f"History logged to {HISTORY_LOGGER_PATH}")
+    history_logger.log_history(target_image_url=args.generated_img, total_rounds=args.rounds)
+    print(f"History logged to {args.history_logger}")
 
     ### Summarizing Guidance
     print("\nSummarizing Guidance from Scores...")
@@ -416,19 +420,18 @@ if __name__ == "__main__":
         guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
     print("Guidance Summary Content:\n", guidance_summary["content"])
     
-
     ### Logging the results
     from logger import ImageEvalLogger
     from ast import literal_eval
         
-    logger = ImageEvalLogger(PROMPT_LOGGER_PATH)
+    logger = ImageEvalLogger(args.prompt_logger)
     contents = literal_eval(guidance_summary["content"])
     logger.log(
-        target_image_url=GENERATED_IMG_PATH,
+        target_image_url=args.generated_img,
         overall_score=(contents["Overall Score"]),
-        original_description=ORIGINAL_PROMPT,
+        original_description=args.prompt,
         suggested_description=(contents["Style"] + " " + contents["Context"])    
     )
 
-    print(f"Results logged to {PROMPT_LOGGER_PATH}")
+    print(f"Results logged to {args.prompt_logger}")
     print("Pipeline execution completed.")
