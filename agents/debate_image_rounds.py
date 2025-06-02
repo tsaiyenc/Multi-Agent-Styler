@@ -167,18 +167,16 @@ style_critique = ConversableAgent(
            - Artistic coherence and consistency
            - Style-specific elements and characteristics
         
-        4. Calculate the style score:
-           - Use the evaluate_style_score function to get an objective score
-           - When calling evaluate_style_score, you must provide two parameters:
-             * image: the URL of the generated image
-             * style_image: the URL of the reference style image
-           - Consider this score in your analysis
-           - Explain how the score aligns with your observations
+        4. Provide style improvement suggestions:
+           - Analyze the objective style score provided
+           - Explain why the score is what it is
+           - Suggest specific improvements to enhance style matching
+           - Provide detailed style descriptions that would better match the reference
         
         You will engage in a professional debate with the ReviewerAgent about your style analysis.
-        If you disagree with their assessment, provide your detailed reasoning and evidence.
+        Focus on providing actionable suggestions to improve the style matching in the next generation.
         
-        Remember: Focus solely on style aspects, not content or image quality.
+        Remember: Your goal is to help create a better style description for the next image generation.
         '''
     ),
     llm_config=LLM_CFG,
@@ -212,18 +210,16 @@ content_analyzer = ConversableAgent(
            - Contextual relevance and appropriateness
            - Overall message coherence
         
-        4. Calculate the context score:
-           - Use the evaluate_context_score function to get an objective score
-           - When calling evaluate_context_score, you must provide two parameters:
-             * image: the URL of the generated image
-             * context: the text description of the intended content
-           - Consider this score in your analysis
-           - Explain how the score aligns with your observations
+        4. Provide content improvement suggestions:
+           - Analyze the objective context score provided
+           - Explain why the score is what it is
+           - Suggest specific improvements to enhance content matching
+           - Provide detailed content descriptions that would better match the intended message
         
-        You will engage in a professional debate with the ReviewerAgent about your content and context analysis.
-        If you disagree with their assessment, provide your detailed reasoning and evidence.
+        You will engage in a professional debate with the ReviewerAgent about your content analysis.
+        Focus on providing actionable suggestions to improve the content matching in the next generation.
         
-        Remember: Focus on both content (what is shown) and context (how it relates to the intended message), not the style or the image quality.
+        Remember: Your goal is to help create a better content description for the next image generation.
         '''
     ),
     llm_config=LLM_CFG,
@@ -254,13 +250,15 @@ reviewer = ConversableAgent(
            - Consider multiple viewpoints
            - Build consensus when possible
         
-        4. Final assessment:
+        4. Final assessment and synthesis:
            - Synthesize the debate points
            - Provide a clear, justified conclusion
            - Highlight key areas of agreement/disagreement
-           - Suggest areas for improvement if needed
+           - Compile the most valuable suggestions for improvement
+           - Create a concise, actionable description for the next generation
         
-        Your goal is to ensure a thorough, objective, and constructive analysis of the image.
+        Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
+        that will guide the next image generation to better match both style and content requirements.
         '''
     ),
     llm_config=LLM_CFG,
@@ -289,38 +287,21 @@ summarizer = ConversableAgent(
     llm_config=LLM_CFG,
 )
 
-# === Register Functions ===
-register_function(
-    evaluate_style_score,
-    caller=style_critique,
-    executor=reviewer,
-    name="evaluate_style_score",
-    description="Evaluate the style similarity between two images using VGG features.",
-)
-
-register_function(
-    evaluate_context_score,
-    caller=content_analyzer,
-    executor=reviewer,
-    name="evaluate_context_score",
-    description="Evaluate the context similarity between an image and a text description using CLIP features.",
-)
-
 # === Pipeline runner ===
 # === Debate ===
 def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, history_logger=None):
     print(f"\n===== Starting {score_type} Debate =====")
 
-    # # Calculate initial score
-    # if score_type == "Style":
-    #     score = evaluate_style_score(img_url, reference)
-    # elif score_type == "Context":
-    #     score = evaluate_context_score(img_url, reference)
+    # Calculate initial score
+    if score_type == "Style":
+        score = evaluate_style_score(img_url, reference)
+    elif score_type == "Context":
+        score = evaluate_context_score(img_url, reference)
 
     initial_prompt = {
         "role": "user",
-        "content": f"""Debate on the image, and give a concise description of the {score_type} of the image."""
-# The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."""
+        "content": f"""Debate on the image, and give a concise description of the {score_type} of the image.
+The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."""
     }
     message_history = [initial_prompt]
     
