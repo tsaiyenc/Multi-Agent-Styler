@@ -16,7 +16,7 @@ while IFS=, read -r img prompt; do
     img_path="./images/$img"
     context_prompt=$(echo "$prompt" | sed 's/^ //')
     placeholder_token="<attention${idx}>"
-    output_dir="./outputs/attention--qwen-complicated-mid0.35-js/attention${idx}"
+    output_dir="./outputs/attention-qwen-complicated-mid0.35-js/attention${idx}"
 
     neg_prompt="${neg_prompts[$img]}"
 
