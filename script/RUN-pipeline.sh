@@ -92,10 +92,12 @@ for i in $(seq 0 $(($NUM_SAMPLES_BEFORE - 1))); do
         --prompt-logger "$OUTPUT_DIR/$PROMPT_LOGGER" \
         --history-logger "$OUTPUT_DIR/$HISTORY_LOGGER"
 
-    SUGGESTED_DESC=$(tail -n 1 "$OUTPUT_DIR/$PROMPT_LOGGER" | awk -F'"' '{print $2}')
-    if [ -z "$SUGGESTED_DESC" ]; then
-        SUGGESTED_DESC=$(tail -n 1 "$OUTPUT_DIR/$PROMPT_LOGGER" | awk -F',' '{print $4}' | awk '{$1=$1;print}')
-    fi
+    SUGGESTED_DESC=$(gawk -v FPAT='[^,]*|"[^"]*"' 'END {
+        val = $4;
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", val);
+        gsub(/^"|"$/, "", val);
+        print val;
+    }' "$OUTPUT_DIR/$PROMPT_LOGGER")
     SUGGESTED_DESC=$(echo "$SUGGESTED_DESC" | sed 's/\.$//')
     SUGGESTED_DESC="${SUGGESTED_DESC}, in the style of {}"
     echo "Suggested description: $SUGGESTED_DESC"
