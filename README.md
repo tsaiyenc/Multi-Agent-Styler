@@ -1,3 +1,55 @@
+# The Birth of a Masterpiece by a MultiAgent System
+
+## How to run
+
+### Build the environment
+```bash
+conda create --name dreamstyler
+conda activate dreamstyler
+pip install git+https://github.com/openai/CLIP.git
+conda env update --file environment.yaml --prune
+```
+
+### Run the multi-agent system debate
+```bash
+python agents/debate_image_rounds.py \
+    --generated-img <Path to the generated image> \
+    --style-img <Path to the style reference image> \
+    --prompt <Original prompt> \
+    [--prompt-logger <Path to save prompt suggestions>] \
+    [--history-logger <Path to save debate history>] \
+    [--rounds <Number of debate rounds>]
+```
+
+Required parameters:
+- `--generated-img`：Path to the generated image
+- `--style-img`：Path to the style reference image
+- `--prompt`：Original prompt
+
+Optional parameters:
+- `--prompt-logger`：Path to save prompt suggestions (default: "./test/prompt_suggestion.csv")
+- `--history-logger`：Path to save debate history (default: "./test/history_log.json")
+- `--rounds`：Number of debate rounds (default: 3)
+
+## Folder Architecture
+```
+.
+├── agents/            # codes of agents
+├── prompt/            # prompts (TXT files)
+├── dreamstyler/       # codes of DreamStyler
+├── images/            # style images, sample image and prompts from DreamStyler
+├── log/               # logs for training
+├── detected_images/   # style images object detection (bounding-box and cropped images)
+├── outputs/           # output images and embeddings
+├── local/             # local files (will not be uploaded to GitHub)
+├── test/              # test files (will not be uploaded to GitHub)
+├── assets/            # assets for README
+├── LICENSE
+├── NOTICE
+├── README.md
+└── environment.yaml
+```
+
 
 --------- dream styler -------
 
