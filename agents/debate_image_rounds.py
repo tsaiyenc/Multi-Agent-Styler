@@ -148,38 +148,9 @@ def evaluate_context_score(image: str, context: str) -> float:
 style_critique = ConversableAgent(
     name="StyleCritiqueAgent",
     system_message=(
-        '''
-        You are an art style expert and professional painter. Your expertise lies in analyzing and comparing artistic styles.
-        
-        Your primary responsibilities:
-        1. Analyze the style of the given image in detail, focusing on:
-           - Color palette and color harmony
-           - Brush stroke techniques and texture
-           - Lighting and shadow effects
-           - Composition and visual balance
-           - Overall aesthetic style and artistic approach
-        
-        2. Compare the style with the reference image and provide:
-           - Detailed analysis of style similarities and differences
-           - Specific observations about artistic techniques
-           - Professional assessment of style consistency
-        
-        3. When evaluating, consider:
-           - Technical execution of the style
-           - Artistic coherence and consistency
-           - Style-specific elements and characteristics
-        
-        4. Provide style improvement suggestions:
-           - Analyze the objective style score provided
-           - Explain why the score is what it is
-           - Suggest specific improvements to enhance style matching
-           - Provide detailed style descriptions that would better match the reference
-        
-        You will engage in a professional debate with the ReviewerAgent about your style analysis.
-        Focus on providing actionable suggestions to improve the style matching in the next generation.
-        
-        Remember: Your goal is to help create a better style description for the next image generation.
-        '''
+        "You are an art style critic. Your job is to evaluate how well a given image matches a specified target style "
+        "(e.g., Studio Ghibli, watercolor, cyberpunk). "
+        "You will critique the style score proposed by ScorerAgent and suggest corrections with reasoning."
     ),
     llm_config=LLM_CFG,
 )
@@ -188,41 +159,8 @@ style_critique = ConversableAgent(
 content_analyzer = ConversableAgent(
     name="ContentAnalyzerAgent",
     system_message=(
-        '''
-        You are a content and context analysis expert specializing in visual content evaluation.
-        
-        Your primary responsibilities:
-        1. Analyze the content and context of the given image in detail, focusing on:
-           - Main subjects and objects (content)
-           - Scene composition and setting (context)
-           - Action or narrative elements (content)
-           - Contextual elements and details (context)
-           - Overall content and context coherence
-        
-        2. Compare the content and context with the given description and provide:
-           - Detailed analysis of content alignment
-           - Specific observations about key elements
-           - Professional assessment of content and context accuracy
-           - Evaluation of how well the image matches the intended message
-        
-        3. When evaluating, consider:
-           - Accuracy of depicted elements (content)
-           - Completeness of content representation
-           - Clarity of visual communication
-           - Contextual relevance and appropriateness
-           - Overall message coherence
-        
-        4. Provide content improvement suggestions:
-           - Analyze the objective context score provided
-           - Explain why the score is what it is
-           - Suggest specific improvements to enhance content matching
-           - Provide detailed content descriptions that would better match the intended message
-        
-        You will engage in a professional debate with the ReviewerAgent about your content analysis.
-        Focus on providing actionable suggestions to improve the content matching in the next generation.
-        
-        Remember: Your goal is to help create a better content description for the next image generation.
-        '''
+        "You are a content analysis expert. Your role is to assess whether the image content is contextually consistent with the given theme, "
+        "prompt, or story. You will challenge the context score proposed by ScorerAgent, and provide analytical feedback."
     ),
     llm_config=LLM_CFG,
 )
@@ -231,37 +169,8 @@ content_analyzer = ConversableAgent(
 reviewer = ConversableAgent(
     name="ReviewerAgent",
     system_message=(
-        '''
-        You are a critical reviewer and debate moderator for image analysis.
-        
-        Your primary responsibilities:
-        1. Review and evaluate the analysis provided by either StyleCritiqueAgent or ContentAnalyzerAgent:
-           - Assess the thoroughness of their analysis
-           - Evaluate the validity of their observations
-           - Consider the technical accuracy of their assessment
-        
-        2. Engage in constructive debate:
-           - Challenge assumptions when necessary
-           - Request clarification on unclear points
-           - Provide alternative perspectives
-           - Support or refute claims with evidence
-        
-        3. Maintain professional discourse:
-           - Focus on objective analysis
-           - Avoid personal bias
-           - Consider multiple viewpoints
-           - Build consensus when possible
-        
-        4. Final assessment and synthesis:
-           - Synthesize the debate points
-           - Provide a clear, justified conclusion
-           - Highlight key areas of agreement/disagreement
-           - Compile the most valuable suggestions for improvement
-           - Create a concise, actionable description for the next generation
-        
-        Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
-        that will guide the next image generation to better match both style and content requirements.
-        '''
+        "You are the final scoring agent. Given a visual description of an image, your job is to propose a style score "
+        "and a context score (both on a scale from 0 to 10). You must defend your scores when challenged, and revise them if needed."
     ),
     llm_config=LLM_CFG,
 )
@@ -302,7 +211,9 @@ def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, hi
 
     initial_prompt = {
         "role": "user",
-        "content": f"""Debate on the image, and give a concise description of the {score_type} of the image.
+        "content": f"""Your task is to evaluate the **{score_type}** of the image on a scale from 0 to 10.
+Begin by proposing a score and justification, then proceed with discussion and revisions if necessary.
+FOCUS ONLY ON THE {score_type.upper()} SCORE, NOT THE OVERALL IMAGE QUALITY.
 The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."""
     }
     message_history = [initial_prompt]
