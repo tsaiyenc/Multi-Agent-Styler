@@ -42,28 +42,36 @@ vgg_transform = transforms.Compose([
 # === Some helper functions ===
 # === Image preprocess function ===
 def preprocess_image(image_path, max_size=512):
-    from PIL import Image
-    import io
-    
-    img = Image.open(image_path)
-    # Keep aspect ratio and scale
-    img.thumbnail((max_size, max_size))
-    
-    # Convert to smaller format
-    buffer = io.BytesIO()
-    img.save(buffer, format='JPEG', quality=85)
-    return buffer.getvalue()
+    try:
+        from PIL import Image
+        import io
+        
+        img = Image.open(image_path)
+        # Keep aspect ratio and scale
+        img.thumbnail((max_size, max_size))
+        
+        # Convert to smaller format
+        buffer = io.BytesIO()
+        img.save(buffer, format='JPEG', quality=85)
+        return buffer.getvalue()
+    except Exception as e:
+        print(f"Error in preprocess_image: {str(e)}")
+        raise
 
 # === Image to data URL ===
 def local_image_to_data_url(image_path):
-    mime_type, _ = guess_type(image_path)
-    if mime_type is None:
-        mime_type = 'application/octet-stream'
-    
-    # Preprocess image
-    preprocessed_image = preprocess_image(image_path)
-    base64_encoded_data = base64.b64encode(preprocessed_image).decode('utf-8')
-    return f"data:{mime_type};base64,{base64_encoded_data}"
+    try:
+        mime_type, _ = guess_type(image_path)
+        if mime_type is None:
+            mime_type = 'application/octet-stream'
+        
+        # Preprocess image
+        preprocessed_image = preprocess_image(image_path)
+        base64_encoded_data = base64.b64encode(preprocessed_image).decode('utf-8')
+        return f"data:{mime_type};base64,{base64_encoded_data}"
+    except Exception as e:
+        print(f"Error in local_image_to_data_url: {str(e)}")
+        raise
 
 # === Evaluate Functions ===
 # === Style Score ===
@@ -75,39 +83,43 @@ def evaluate_style_score(image: str, style_image: str) -> float:
     Returns:
         float: The style similarity score (0-10)
     """
-    # If it's a URL, download the image first
-    if image.startswith('data:'):
-        import base64
-        import io
-        # Extract base64 data from the data URL
-        image_data = image.split(',')[1]
-        image_bytes = base64.b64decode(image_data)
-        gen_img = Image.open(io.BytesIO(image_bytes))
-    else:
-        gen_img = Image.open(image)
-        
-    if style_image.startswith('data:'):
-        import base64
-        import io
-        # Extract base64 data from the data URL
-        style_data = style_image.split(',')[1]
-        style_bytes = base64.b64decode(style_data)
-        style_img = Image.open(io.BytesIO(style_bytes))
-    else:
-        style_img = Image.open(style_image)
+    try:
+        # If it's a URL, download the image first
+        if image.startswith('data:'):
+            import base64
+            import io
+            # Extract base64 data from the data URL
+            image_data = image.split(',')[1]
+            image_bytes = base64.b64decode(image_data)
+            gen_img = Image.open(io.BytesIO(image_bytes))
+        else:
+            gen_img = Image.open(image)
+            
+        if style_image.startswith('data:'):
+            import base64
+            import io
+            # Extract base64 data from the data URL
+            style_data = style_image.split(',')[1]
+            style_bytes = base64.b64decode(style_data)
+            style_img = Image.open(io.BytesIO(style_bytes))
+        else:
+            style_img = Image.open(style_image)
 
-    gen_img = vgg_transform(gen_img).unsqueeze(0).to(device)
-    style_img = vgg_transform(style_img).unsqueeze(0).to(device)
+        gen_img = vgg_transform(gen_img).unsqueeze(0).to(device)
+        style_img = vgg_transform(style_img).unsqueeze(0).to(device)
 
-    with torch.no_grad():
-        gen_feat = vgg(gen_img)  # Extract features from the generated image
-        style_feat = vgg(style_img)  # Extract features from the style image
-        mse = mse_loss(gen_feat, style_feat).item()  # Calculate the mean square error between the two features
-        # Convert the MSE score to the 0-10 range
-        # The smaller the MSE, the more similar the style, so use 1/(1+mse) to convert
-        # When mse=0, the score is 10; when mse approaches infinity, the score approaches 0
-        score = 10 * (1 / (1 + math.log(1 + mse)))  # Convert the score to the 0-10 range
-    return score
+        with torch.no_grad():
+            gen_feat = vgg(gen_img)  # Extract features from the generated image
+            style_feat = vgg(style_img)  # Extract features from the style image
+            mse = mse_loss(gen_feat, style_feat).item()  # Calculate the mean square error between the two features
+            # Convert the MSE score to the 0-10 range
+            # The smaller the MSE, the more similar the style, so use 1/(1+mse) to convert
+            # When mse=0, the score is 10; when mse approaches infinity, the score approaches 0
+            score = 10 * (1 / (1 + math.log(1 + mse)))  # Convert the score to the 0-10 range
+        return score
+    except Exception as e:
+        print(f"Error in evaluate_style_score: {str(e)}")
+        return 0.0  # Return the lowest score
 
 # === Context Score ===
 def evaluate_context_score(image: str, context: str) -> float:
@@ -118,30 +130,34 @@ def evaluate_context_score(image: str, context: str) -> float:
     Returns:
         float: The context similarity score (0-10)
     """
-    # If it's a URL, download the image first
-    if image.startswith('data:'):
-        import base64
-        import io
-        # Extract base64 data from the data URL
-        image_data = image.split(',')[1]
-        image_bytes = base64.b64decode(image_data)
-        img = Image.open(io.BytesIO(image_bytes))
-    else:
-        img = Image.open(image)
+    try:
+        # If it's a URL, download the image first
+        if image.startswith('data:'):
+            import base64
+            import io
+            # Extract base64 data from the data URL
+            image_data = image.split(',')[1]
+            image_bytes = base64.b64decode(image_data)
+            img = Image.open(io.BytesIO(image_bytes))
+        else:
+            img = Image.open(image)
 
-    image = clip_preprocess(img).unsqueeze(0).to(device)
-    context = clip.tokenize([context]).to(device)
+        image = clip_preprocess(img).unsqueeze(0).to(device)
+        context = clip.tokenize([context]).to(device)
 
-    with torch.no_grad():
-        image_feat = clip_model.encode_image(image)  # Extract image features
-        context_feat = clip_model.encode_text(context)  # Extract text features
-        image_feat /= image_feat.norm(dim=-1, keepdim=True)  # Normalize image features
-        context_feat /= context_feat.norm(dim=-1, keepdim=True)  # Normalize text features
-        similarity = (image_feat @ context_feat.T).item()  # Calculate the cosine similarity
-        # Convert the cosine similarity (-1,1) to the 0-10 range
-        # When the similarity is 1, the score is 10; when the similarity is -1, the score is 0
-        score = 5 * (similarity + 1)  # Convert the score to the 0-10 range
-    return score
+        with torch.no_grad():
+            image_feat = clip_model.encode_image(image)  # Extract image features
+            context_feat = clip_model.encode_text(context)  # Extract text features
+            image_feat /= image_feat.norm(dim=-1, keepdim=True)  # Normalize image features
+            context_feat /= context_feat.norm(dim=-1, keepdim=True)  # Normalize text features
+            similarity = (image_feat @ context_feat.T).item()  # Calculate the cosine similarity
+            # Convert the cosine similarity (-1,1) to the 0-10 range
+            # When the similarity is 1, the score is 10; when the similarity is -1, the score is 0
+            score = 5 * (similarity + 1)  # Convert the score to the 0-10 range
+        return score
+    except Exception as e:
+        print(f"Error in evaluate_context_score: {str(e)}")
+        return 0.0  # Return the lowest score
 
 # === Agent Definitions ===
 # === StyleCritique Agent ===
@@ -285,64 +301,88 @@ def summarize_guidance_from_score(sytle_score_summary:dict, context_score_summar
 
 # === Example usage ===
 if __name__ == "__main__":
-    ### Parse arguments
-    parser = argparse.ArgumentParser(description='Image evaluation pipeline with debate rounds')
-    parser.add_argument('--prompt-logger', type=str, default="./test/prompt_suggestion.csv",
-                      help='Path to save prompt suggestions')
-    parser.add_argument('--history-logger', type=str, default="./test/history_log.json",
-                      help='Path to save debate history')
-    parser.add_argument('--rounds', type=int, default=3,
-                      help='Number of debate rounds')
-    parser.add_argument('--generated-img', type=str, required=True,
-                      help='Path to the generated image')
-    parser.add_argument('--style-img', type=str, required=True,
-                      help='Path to the style reference image')
-    parser.add_argument('--prompt', type=str, required=True,
-                      help='Original prompt used for image generation')
-    
-    args = parser.parse_args()
-    
-    ### Convert image to data URL
-    GENERATED_IMG_URL = local_image_to_data_url(args.generated_img)
-    STYLE_IMG_URL = local_image_to_data_url(args.style_img)
-    
-    ### Running the pipeline
-    print("Starting the image evaluation pipeline...")
-    from logger import HistoryLogger
-    history_logger = HistoryLogger(args.history_logger)
-
-    style_score_summary = run_debate("Style", style_critique, reviewer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=args.rounds, history_logger = history_logger)
-    context_score_summary = run_debate("Context", content_analyzer, reviewer, GENERATED_IMG_URL, args.prompt, rounds=args.rounds, history_logger = history_logger)
-
-    print("Style Score Content:\n", style_score_summary["content"])
-    print("Context Score Content:\n", context_score_summary["content"])
-
-    # Dump history logger
-    history_logger.log_history(target_image_url=args.generated_img, total_rounds=args.rounds)
-    print(f"History logged to {args.history_logger}")
-
-    ### Summarizing Guidance
-    print("\nSummarizing Guidance from Scores...")
-    guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
-    # if guidance_summary is not a json, then call the summarizer again
     try:
-        json.loads(guidance_summary["content"])
-    except:
-        guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
-    print("Guidance Summary Content:\n", guidance_summary["content"])
-    
-    ### Logging the results
-    from logger import ImageEvalLogger
-    from ast import literal_eval
+        ### Parse arguments
+        parser = argparse.ArgumentParser(description='Image evaluation pipeline with debate rounds')
+        parser.add_argument('--prompt-logger', type=str, default="./test/prompt_suggestion.csv",
+                          help='Path to save prompt suggestions')
+        parser.add_argument('--history-logger', type=str, default="./test/history_log.json",
+                          help='Path to save debate history')
+        parser.add_argument('--rounds', type=int, default=3,
+                          help='Number of debate rounds')
+        parser.add_argument('--generated-img', type=str, required=True,
+                          help='Path to the generated image')
+        parser.add_argument('--style-img', type=str, required=True,
+                          help='Path to the style reference image')
+        parser.add_argument('--prompt', type=str, required=True,
+                          help='Original prompt used for image generation')
         
-    logger = ImageEvalLogger(args.prompt_logger)
-    contents = literal_eval(guidance_summary["content"])
-    logger.log(
-        target_image_url=args.generated_img,
-        overall_score=(contents["Overall Score"]),
-        original_description=args.prompt,
-        suggested_description=(contents["Style"] + " " + contents["Context"])    
-    )
+        args = parser.parse_args()
+        
+        ### Convert image to data URL
+        try:
+            GENERATED_IMG_URL = local_image_to_data_url(args.generated_img)
+            STYLE_IMG_URL = local_image_to_data_url(args.style_img)
+        except Exception as e:
+            print(f"Error converting images to data URLs: {str(e)}")
+            raise
+        
+        ### Running the pipeline
+        print("Starting the image evaluation pipeline...")
+        from logger import HistoryLogger
+        history_logger = HistoryLogger(args.history_logger)
 
-    print(f"Results logged to {args.prompt_logger}")
-    print("Pipeline execution completed.")
+        try:
+            style_score_summary = run_debate("Style", style_critique, reviewer, GENERATED_IMG_URL, STYLE_IMG_URL, rounds=args.rounds, history_logger = history_logger)
+            context_score_summary = run_debate("Context", content_analyzer, reviewer, GENERATED_IMG_URL, args.prompt, rounds=args.rounds, history_logger = history_logger)
+        except Exception as e:
+            print(f"Error during debate rounds: {str(e)}")
+            raise
+
+        print("Style Score Content:\n", style_score_summary["content"])
+        print("Context Score Content:\n", context_score_summary["content"])
+
+        # Dump history logger
+        try:
+            history_logger.log_history(target_image_url=args.generated_img, total_rounds=args.rounds)
+            print(f"History logged to {args.history_logger}")
+        except Exception as e:
+            print(f"Error logging history: {str(e)}")
+
+        ### Summarizing Guidance
+        print("\nSummarizing Guidance from Scores...")
+        try:
+            guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
+            # if guidance_summary is not a json, then call the summarizer again
+            try:
+                json.loads(guidance_summary["content"])
+            except:
+                guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
+            print("Guidance Summary Content:\n", guidance_summary["content"])
+        except Exception as e:
+            print(f"Error summarizing guidance: {str(e)}")
+            raise
+        
+        ### Logging the results
+        try:
+            from logger import ImageEvalLogger
+            from ast import literal_eval
+                
+            logger = ImageEvalLogger(args.prompt_logger)
+            contents = literal_eval(guidance_summary["content"])
+            logger.log(
+                target_image_url=args.generated_img,
+                overall_score=(contents["Overall Score"]),
+                original_description=args.prompt,
+                suggested_description=(contents["Style"] + " " + contents["Context"])    
+            )
+
+            print(f"Results logged to {args.prompt_logger}")
+            print("Pipeline execution completed.")
+        except Exception as e:
+            print(f"Error logging results: {str(e)}")
+            raise
+
+    except Exception as e:
+        print(f"Fatal error in main execution: {str(e)}")
+        raise
