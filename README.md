@@ -1,6 +1,15 @@
 # The Birth of a Masterpiece by a MultiAgent System
 
 ## How to run
+
+### Build the environment
+```bash
+conda create --name dreamstyler
+conda activate dreamstyler
+pip install git+https://github.com/openai/CLIP.git
+conda env update --file environment.yml --prune
+```
+
 ### Run the multi-agent system debate
 ```bash
 python agents/debate_image_rounds.py \
