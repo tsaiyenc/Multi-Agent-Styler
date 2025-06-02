@@ -1,5 +1,36 @@
 # The Birth of a Masterpiece by a MultiAgent System
 
+## How to run
+
+### Build the environment
+```bash
+conda create --name dreamstyler
+conda activate dreamstyler
+pip install git+https://github.com/openai/CLIP.git
+conda env update --file environment.yml --prune
+```
+
+### Run the multi-agent system debate
+```bash
+python agents/debate_image_rounds.py \
+    --generated-img <Path to the generated image> \
+    --style-img <Path to the style reference image> \
+    --prompt <Original prompt> \
+    [--prompt-logger <Path to save prompt suggestions>] \
+    [--history-logger <Path to save debate history>] \
+    [--rounds <Number of debate rounds>]
+```
+
+Required parameters:
+- `--generated-img`：Path to the generated image
+- `--style-img`：Path to the style reference image
+- `--prompt`：Original prompt
+
+Optional parameters:
+- `--prompt-logger`：Path to save prompt suggestions (default: "./test/prompt_suggestion.csv")
+- `--history-logger`：Path to save debate history (default: "./test/history_log.json")
+- `--rounds`：Number of debate rounds (default: 3)
+
 ## Folder Architecture
 ```
 .
