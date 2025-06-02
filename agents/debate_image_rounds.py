@@ -9,6 +9,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 from torchvision.models import vgg19
 from torch.nn.functional import mse_loss
+import math
 
 # === LLM Configuration ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "sk-proj-").strip()
@@ -104,7 +105,7 @@ def evaluate_style_score(image: str, style_image: str) -> float:
         # Convert the MSE score to the 0-10 range
         # The smaller the MSE, the more similar the style, so use 1/(1+mse) to convert
         # When mse=0, the score is 10; when mse approaches infinity, the score approaches 0
-        score = 10 * (1 / (1 + mse))  # Convert the score to the 0-10 range
+        score = 10 * (1 / (1 + math.log(1 + mse)))  # Convert the score to the 0-10 range
     return score
 
 # === Context Score ===
