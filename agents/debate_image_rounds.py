@@ -107,16 +107,38 @@ def evaluate_style_score(image: str, style_image: str) -> float:
 
         gen_img = vgg_transform(gen_img).unsqueeze(0).to(device)
         style_img = vgg_transform(style_img).unsqueeze(0).to(device)
-
+        
+        # Define layers and weights to use
+        layers = [0, 5, 10]  # Use first three convolutional layers
+        weights = [0.5, 0.3, 0.2]  # Weight distribution
+        
         with torch.no_grad():
-            gen_feat = vgg(gen_img)  # Extract features from the generated image
-            style_feat = vgg(style_img)  # Extract features from the style image
-            mse = mse_loss(gen_feat, style_feat).item()  # Calculate the mean square error between the two features
-            # Convert the MSE score to the 0-10 range
-            # The smaller the MSE, the more similar the style, so use 1/(1+mse) to convert
-            # When mse=0, the score is 10; when mse approaches infinity, the score approaches 0
-            score = 10 * (1 / (1 + math.log(1 + mse)))  # Convert the score to the 0-10 range
-        return score
+            total_score = 0
+            x_gen = gen_img
+            x_style = style_img
+            
+            for i, layer_idx in enumerate(layers):
+                # Calculate features up to current layer
+                for j in range(layer_idx + 1):
+                    x_gen = vgg[j](x_gen)
+                    x_style = vgg[j](x_style)
+                
+                # Calculate style score for current layer
+                layer_score = -mse_loss(x_gen, x_style).item()
+                total_score += weights[i] * layer_score
+                
+                # Reset features for next layer calculation
+                x_gen = gen_img
+                x_style = style_img
+        
+        # Normalize the score to 0-10 range
+        # Using normalization parameters specific to few-layers approach
+        min_score = -8
+        max_score = 0
+        normalized_score = (total_score - min_score) / (max_score - min_score)
+        final_score = max(0, min(normalized_score * 10, 10))
+        
+        return final_score
     except Exception as e:
         print(f"Error in evaluate_style_score: {str(e)}")
         return 0.0  # Return the lowest score
