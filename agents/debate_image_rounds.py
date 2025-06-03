@@ -516,6 +516,10 @@ if __name__ == "__main__":
                 
             logger = ImageEvalLogger(args.prompt_logger)
             contents = literal_eval(guidance_summary["content"])
+
+            if contents["Context"].endswith('.'):
+                contents["Context"] = contents["Context"][:-1]
+
             logger.log(
                 target_image_url=args.generated_img,
                 overall_score=(contents["Overall Score"]),
