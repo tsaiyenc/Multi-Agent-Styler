@@ -99,7 +99,7 @@ for i in $(seq 0 $(($NUM_SAMPLES_BEFORE - 1))); do
         print val;
     }' "$OUTPUT_DIR/$PROMPT_LOGGER")
     SUGGESTED_DESC=$(echo "$SUGGESTED_DESC" | sed 's/\.$//')
-    SUGGESTED_DESC="${SUGGESTED_DESC}, in the style of {}"
+    # SUGGESTED_DESC="${SUGGESTED_DESC}, in the style of {}"
     echo "Suggested description: $SUGGESTED_DESC"
     echo "Inferencing image: $INPUT_IMG"
     CUDA_VISIBLE_DEVICES=$GPU_ID python dreamstyler/inference_t2i.py \

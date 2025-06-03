@@ -187,28 +187,19 @@ style_critique = ConversableAgent(
     name="StyleCritiqueAgent",
     system_message=(
         '''
-        You are an art style expert and professional painter. Your expertise lies in analyzing and comparing artistic styles.
-        
-        You will recieve two images, target image and reference image, respectively.
-        Your primary responsibilities:
-        1. Identify the Reference Image's style or movement (e.g., Academic Realism, Impressionism, Abstract, Digital, etc.).
+        You are an art style expert. Your task is to analyze two images: target and reference.
 
-        2. Analyze the Reference Image's style by noting:
-        - Color palette and harmony (muted vs. bold, warm vs. cool)
-        - Brushstroke or texture (smooth blending vs. visible strokes, digital effects, etc.)
-        - Lighting and shadow (soft gradations vs. dramatic contrast)
-        - Composition and balance (figure poses, space, background detail)
+        Please provide brief answers on:
+        1. Reference image's style type
+        2. Key style features:
+           - Color palette
+           - Brushwork
+           - Lighting
+           - Composition
+        3. Differences between target and reference
+        4. Specific improvement suggestions
 
-        3. Compare Target vs. Reference:
-        - Point out key similarities and differences in palette, brushwork/texture, lighting, and composition.
-        - Cite specific areas where the Target aligns or diverges from the Reference's style.
-
-        4. After receiving an objective style score, explain why that score is justified and offer concrete advice to improve the Target's style (for example: “Reduce saturation in highlights,” “Add more visible brush marks,” or “Simplify background details”).
-                
-        You will engage in a professional debate with the ReviewerAgent about your style analysis.
-        Focus on providing actionable suggestions to improve the style matching in the next generation.
-        
-        Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
+        Keep responses concise, focusing on key differences and improvements.
         '''
     ),
     llm_config=LLM_CFG,
@@ -219,28 +210,14 @@ content_analyzer = ConversableAgent(
     name="ContentAnalyzerAgent",
     system_message=(
         '''
-        You are a content and context analysis expert specializing in visual content evaluation.
-        
-        You will receive a target image and a description C.
+        You are a content analysis expert. Your task is to analyze image content.
 
-        Your primary responsibilities:
-        1. Analyze the content and context of the given target image in detail.
-        
-        2. Compare the content and context with the given description C and provide:
-           - Detailed analysis of content alignment
-           - Specific observations about key elements
-           - Professional assessment of content and context accuracy
-           - Evaluation of how well the image matches the intended message
-        
-        3. Provide content improvement suggestions:
-           - detect which object is irrrelevent and redundant in the painting. (Ex. if there is a woman in the painting, but not in the description C, then you should detect the woman is redundant.)
-           - Suggest specific improvements to enhance content matching
-           - Provide detailed content descriptions that would better match the intended message
-        
-        You will engage in a professional debate with the ReviewerAgent about your content analysis.
-        Focus on providing actionable suggestions to improve the content matching in the next generation.
-        
-        Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
+        Please provide brief answers on:
+        1. Content alignment with description
+        2. Redundant or missing elements
+        3. Specific improvement suggestions
+
+        Keep responses concise, focusing on key issues and improvements.
         '''
     ),
     llm_config=LLM_CFG,
@@ -251,29 +228,17 @@ reviewer = ConversableAgent(
     name="ReviewerAgent",
     system_message=(
         '''
-        You are a critical reviewer and debate moderator for image analysis.
+        You are a critic and debate moderator.
 
-        You will not see the actual images, but you can talk to two agents who can truly see the images.
-        
-        If you are talking to StyleCritiqueAgent, your responsibilty is:
-        Focus on the style.
-        Analyze the style from StyleCritiqueAgent.
-            You can ask StyleCritiqueAgent some questions to make it more clear.
-            EX: if the painting is more about expressionism style, you can ask:
-            "What is a typical expressionism style painting should be? Does the image match the style?"
+        When discussing with StyleCritiqueAgent:
+        - Focus on style analysis
+        - Ask clear, concise questions
 
-        If you are talking to ContentAnalyzerAgent, your responsibilty is:
-        Focus on the content and objects.
-        Analyze the description from ContentAnalyzerAgent.
-            You can ask ContentAnalyzerAgent some questions to make it more clear.
-            EX: if ContentAnalyzerAgent says there's something weird in the painting, you can ask:
-            "Does the image content match with the image description? Is there anything redundant in the painting?"   
-           
-        If you are talking to ContentAnalyzerAgent, your responsibilty is:
-        Analyze the content from ContentAnalyzerAgent.
-        
-        Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
-        that will guide the next image generation to better match both style and content requirements, so you should ask concise and accurate.
+        When discussing with ContentAnalyzerAgent:
+        - Focus on content analysis
+        - Ask clear, concise questions
+
+        Keep responses brief, focusing on key points.
         '''
     ),
     llm_config=LLM_CFG,
@@ -285,17 +250,24 @@ summarizer = ConversableAgent(
     name="SummarizerAgent",
     system_message=(
     '''
-    You are an image feedback summarizer. 
-    Given a debate summary from the ReviewerAgent about the aesthetic, style, and context of a target image, 
-    your task is to extract and propose:
-    1. A concise target style description
-    2. A concise target context description
-    These will guide the next round of image generation to better match the intended aesthetic goals.
-    RETURN ONLY IN JSON FORMAT:
+    You are an image feedback summarizer.
+    Based on ReviewerAgent's discussion summary, provide:
+    1. Brief style description (max 20 words)
+    2. Brief content description (max 20 words)
+
+    IMPORTANT: You MUST output ONLY valid JSON format, nothing else.
+    The JSON must have exactly these fields:
     {
-        "Overall Score": "<overall score>",
-        "Style": "<style description>",
-        "Context": "<context description>"
+        "Overall Score": "<a number between 0-10>",
+        "Style": "<brief style description>",
+        "Context": "<brief content description>"
+    }
+
+    Example valid output:
+    {
+        "Overall Score": "7.5",
+        "Style": "impressionist with soft brushstrokes",
+        "Context": "a peaceful garden scene with flowers"
     }
     '''
     ),
@@ -386,21 +358,55 @@ def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, hi
     return final_summary
 
 # === Summarize ===
-def summarize_guidance_from_score(original_prompt: str, sytle_score_summary:dict, context_score_summary:dict):
+def summarize_guidance_from_score(original_prompt: str, style_score_summary:dict, context_score_summary:dict, max_retries=3, origin_prompt: str = ""):
     summary_prompt = [
         {"role": "user", "content": "Based on the following scoring summary and the original prompt, extract ideal descriptions for STYLE and CONTEXT."},
         {"role": "user", "content": f"The original image was generated with the prompt: \"{original_prompt}\"."},
-        {"role": "assistant", "name": "ReviewerAgent", "content": sytle_score_summary["content"]},
+        {"role": "assistant", "name": "ReviewerAgent", "content": style_score_summary["content"]},
         {"role": "assistant", "name": "ReviewerAgent", "content": context_score_summary["content"]},
-        {"role": "user", "content": "Please output a new, improved prompt in JSON format with keys Overall Score, Style, and Context."}
+        {"role": "user", "content": "Please output a new, improved prompt in JSON format with keys Overall Score, Style, and Context."},
+        {"role": "user", "content": "Using simple words and keep the description concise."}
     ]
 
-    summary_response = summarizer.generate_reply(summary_prompt, return_message=True)
-    if isinstance(summary_response, str):
-        summary_response = {"role": "assistant", "name": summarizer.name, "content": summary_response}
-
-    # print("\n Summarized Target Guidance (from SummarizerAgent):")
-    # print(summary_response["content"])
+    for attempt in range(max_retries):
+        try:
+            summary_response = summarizer.generate_reply(summary_prompt, return_message=True)
+            if isinstance(summary_response, str):
+                summary_response = {"role": "assistant", "name": summarizer.name, "content": summary_response}
+            
+            # 驗證 JSON 格式
+            content = summary_response["content"]
+            # 如果內容不是以 { 開頭，嘗試提取 JSON 部分
+            if not content.strip().startswith("{"):
+                import re
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    content = json_match.group(0)
+            
+            # 驗證 JSON 格式是否正確
+            parsed_json = json.loads(content)
+            required_keys = ["Overall Score", "Style", "Context"]
+            if all(key in parsed_json for key in required_keys):
+                return summary_response
+            
+            # 如果缺少必要欄位，重試
+            raise ValueError("Missing required JSON fields")
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            if attempt == max_retries - 1:
+                # 最後一次嘗試失敗，返回預設值
+                default_response = {
+                    "role": "assistant",
+                    "name": summarizer.name,
+                    "content": json.dumps({
+                        "Overall Score": "6.0",
+                        "Style": "",
+                        "Context": origin_prompt
+                    })
+                }
+                return default_response
+            continue
+    
     return summary_response
 
 # === Example usage ===
@@ -456,12 +462,12 @@ if __name__ == "__main__":
         ### Summarizing Guidance
         print("\nSummarizing Guidance from Scores...")
         try:
-            guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary)
+            guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary, origin_prompt=args.prompt)
             # if guidance_summary is not a json, then call the summarizer again
             try:
                 json.loads(guidance_summary["content"])
             except:
-                guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary)
+                guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary, origin_prompt=args.prompt)
             print("Guidance Summary Content:\n", guidance_summary["content"])
         except Exception as e:
             print(f"Error summarizing guidance: {str(e)}")
@@ -478,7 +484,7 @@ if __name__ == "__main__":
                 target_image_url=args.generated_img,
                 overall_score=(contents["Overall Score"]),
                 original_description=args.prompt,
-                suggested_description=(contents["Style"] + " " + contents["Context"])    
+                suggested_description=(contents["Context"] + ", in the style of {}. " + contents["Style"])    
             )
 
             print(f"Results logged to {args.prompt_logger}")
