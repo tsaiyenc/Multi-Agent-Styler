@@ -40,38 +40,20 @@ vgg_transform = transforms.Compose([
 ])
 
 # === Some helper functions ===
-# === Image preprocess function ===
-def preprocess_image(image_path, max_size=512):
-    try:
-        from PIL import Image
-        import io
-        
-        img = Image.open(image_path)
-        # Keep aspect ratio and scale
-        img.thumbnail((max_size, max_size))
-        
-        # Convert to smaller format
-        buffer = io.BytesIO()
-        img.save(buffer, format='JPEG', quality=85)
-        return buffer.getvalue()
-    except Exception as e:
-        print(f"Error in preprocess_image: {str(e)}")
-        raise
-
+# === Image preprocess function ==
 # === Image to data URL ===
-def local_image_to_data_url(image_path):
-    try:
-        mime_type, _ = guess_type(image_path)
-        if mime_type is None:
-            mime_type = 'application/octet-stream'
-        
-        # Preprocess image
-        preprocessed_image = preprocess_image(image_path)
-        base64_encoded_data = base64.b64encode(preprocessed_image).decode('utf-8')
-        return f"data:{mime_type};base64,{base64_encoded_data}"
-    except Exception as e:
-        print(f"Error in local_image_to_data_url: {str(e)}")
-        raise
+def local_image_to_data_url(path: str) -> str:
+    """
+    讀取本地圖片檔案，轉成 Data URL（Base64 編碼）。
+    回傳形如 "data:image/png;base64,xxxxx..."。
+    """
+    mime, _ = guess_type(path)
+    if not mime:
+        mime = "application/octet-stream"
+    with open(path, "rb") as f:
+        raw = f.read()
+    b64 = base64.b64encode(raw).decode("utf-8")
+    return f"data:{mime};base64,{b64}"
 
 # === Evaluate Functions ===
 # === Style Score ===
@@ -186,20 +168,40 @@ def evaluate_context_score(image: str, context: str) -> float:
 style_critique = ConversableAgent(
     name="StyleCritiqueAgent",
     system_message=(
-        '''
-        You are an art style expert. Your task is to analyze two images: target and reference.
+         '''
+        You are an art style expert and professional painter. Your expertise lies in analyzing and comparing artistic styles.
+        
+        You will recieve two images, target image and reference image, respectively.
 
-        Please provide brief answers on:
-        1. Reference image's style type
-        2. Key style features:
-           - Color palette
-           - Brushwork
-           - Lighting
-           - Composition
-        3. Differences between target and reference
-        4. Specific improvement suggestions
+        Your primary responsibilities:
+        1. Identify the Reference Image's style or movement, Ex: 
+        - Academic Realism
+        - Impressionism
+        - Baroque
+        - Rococo
+        - Surrealism
+        - Contemporary Digital
+        - is it watercolor, ink painting, oil painting, pastel or anything else?
 
-        Keep responses concise, focusing on key differences and improvements.
+        2. Analyze the Reference Image's style by noting:
+        - Color palette and harmony (muted vs. bold, warm vs. cool)
+        - Brushstroke or texture (smooth blending vs. visible strokes, digital effects, etc.)
+        - Lighting and shadow (soft gradations vs. dramatic contrast)
+        - Composition and balance (figure poses, space, background detail)
+
+        3. Compare Target image and Reference image:
+        - Point out key similarities and differences in palette, brushwork/texture, lighting, and composition.
+        - Cite specific areas where the Target aligns or diverges from the Reference's style.
+
+        4. After receiving an objective style score, explain why that score is justified and offer concrete advice to improve the Target's style (for example: “Reduce saturation in highlights,” “Add more visible brush marks,” or “Simplify background details”).
+                
+        You can observe the image by the following simple question:
+        1. Which explicit art style can this reference image belongs to? (e.g., Academic Realism, Impressionism, Abstract, Digital, etc.).
+        2. Explicitly describe how the target image can be more closed to reference image?
+        
+        You will engage in a professional debate with the ReviewerAgent about your style analysis.
+        Focus on providing actionable suggestions to improve the style matching in the next generation, do not use implicit adjective description like 'vibrant', 'elegant', 'dramatic',
+        Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
         '''
     ),
     llm_config=LLM_CFG,
@@ -209,15 +211,40 @@ style_critique = ConversableAgent(
 content_analyzer = ConversableAgent(
     name="ContentAnalyzerAgent",
     system_message=(
-        '''
-        You are a content analysis expert. Your task is to analyze image content.
+       '''
+        You are a content and context analysis expert specializing in visual content evaluation. When you receive a Target Image and an original description C (e.g., “a painting of a dog”), perform these tasks:
 
-        Please provide brief answers on:
-        1. Content alignment with description
-        2. Redundant or missing elements
-        3. Specific improvement suggestions
+        1. Analyze the content and context of the Target Image in detail:
+           - Identify all objects, figures, and background elements present.
+           - Note which objects occupy the most visual space and their relative importance.
 
-        Keep responses concise, focusing on key issues and improvements.
+        2. Compare the image content with the description C and provide:
+           - A detailed analysis of alignment: which elements correctly match C, which are missing, and which are extraneous.
+           - Specific observations about key elements: clarity, prominence, and relevance to C.
+
+        3. Detect and remove or minimize irrelevant objects:
+           - If an object appears but is not implied by C (for example, a woman in the painting when C is “a painting of a dog”), mark it as redundant and suggest removing or reducing its prominence.
+
+        4. Identify missing but relevant objects or context that would strengthen alignment with C:
+           - Suggest additions of objects, props, or environmental details that a viewer would expect given C. For “a painting of a dog,” you might propose adding a dog bowl, a favorite toy, a leash, or a park background—anything that reinforces “dog” as the subject.
+           - Recommend ways to emphasize the intended object(s) from C: for example, repositioning, enlarging, or increasing contrast/lighting on the dog so it becomes the clear focal point.
+
+        5. Provide concrete content improvement suggestions:
+           - For each irrelevant or missing element, specify exactly what to remove, minimize, or add. Use phrasing like:
+             • “Remove the human figure on the left margin; it distracts from the dog as the subject.”  
+             • “Add a small food bowl near the dog's paws, using a muted ceramic texture to reinforce a domestic setting.”  
+             • “Include a simple grass or park background to situate the dog in a natural environment.”  
+           - Advise on adjustments to ensure objects from C are clear and dominant: scale, placement, color contrast, or lighting changes.
+
+        6. Engage in a professional debate with ReviewerAgent about your content analysis:
+           - Be prepared to justify why certain objects are redundant or why suggested additions will improve alignment.
+           - Focus on actionable, detailed recommendations that a future image generation prompt can use directly.
+
+        You can observe the image by asking:
+        1. Are there any objects not mentioned in C that occupy the majority of the scene? If so, they should be minimized or excluded.
+        2. Are the objects described in C (the “dog”) clear, well-positioned, and prominent in the image? If not, they should be emphasized through size, contrast, or placement.
+
+        Remember: Your ultimate goal is to supply precise content notes—removals and additions—so that the next image generation prompt can be more accurate and realistic. Keep your suggestions specific, using concrete object names and placement details.
         '''
     ),
     llm_config=LLM_CFG,
@@ -227,18 +254,32 @@ content_analyzer = ConversableAgent(
 reviewer = ConversableAgent(
     name="ReviewerAgent",
     system_message=(
-        '''
-        You are a critic and debate moderator.
+         '''
+        You are a critical reviewer and debate moderator for image analysis.
 
-        When discussing with StyleCritiqueAgent:
-        - Focus on style analysis
-        - Ask clear, concise questions
+        You will not see the actual images, but you can talk to two agents who can truly see the images.
+        
+        If you are talking to StyleCritiqueAgent, your responsibilty is:
+        Focus on the style.
+        Analyze the style from StyleCritiqueAgent.
+            You can ask StyleCritiqueAgent some questions to make it more clear.
+            EX: if the painting is more about expressionism style, you can ask:
+            1. "What is a typical expressionism style painting should be? Does the image match the style?"
+            2. “What specific adjustments would make the Target Image's style more closely match the Reference Image's style?”
 
-        When discussing with ContentAnalyzerAgent:
-        - Focus on content analysis
-        - Ask clear, concise questions
-
-        Keep responses brief, focusing on key points.
+        If you are talking to ContentAnalyzerAgent, your responsibilty is:
+        Focus on the content and objects.
+        Analyze the description from ContentAnalyzerAgent.
+            You can ask ContentAnalyzerAgent some questions to make it more clear.
+            EX: if ContentAnalyzerAgent says there's something weird in the painting, you can ask:
+            1. "Does the image content match with the image description?"
+            2. "Is there anything redundant in the painting? Is there anything can be added into the painting to make it more attach to the style of reference image?"   
+           
+        If you are talking to ContentAnalyzerAgent, your responsibilty is:
+        Analyze the content from ContentAnalyzerAgent.
+        
+        Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
+        that will guide the next image generation to better match both style and content requirements, so you should ask concise and accurate.
         '''
     ),
     llm_config=LLM_CFG,
@@ -249,27 +290,22 @@ PROMPT_EXAMPLES = ''
 summarizer = ConversableAgent(
     name="SummarizerAgent",
     system_message=(
-    '''
-    You are an image feedback summarizer.
-    Based on ReviewerAgent's discussion summary, provide:
-    1. Brief style description (max 20 words)
-    2. Brief content description (max 20 words)
+        '''
+        You are an image feedback summarizer. 
+        Given a debate summary from the ReviewerAgent about the aesthetic, style, and context of a target image, 
+        your task is to extract and propose:
+        1. A concise target style description.
+        2. A concise target context description that we want in the painting, do not include redundant objets.
+        These will guide the next round of image generation to better match the intended aesthetic goals.
+        remember both of style description and context description should be limit into 35 words, respectively.
 
-    IMPORTANT: You MUST output ONLY valid JSON format, nothing else.
-    The JSON must have exactly these fields:
-    {
-        "Overall Score": "<a number between 0-10>",
-        "Style": "<brief style description>",
-        "Context": "<brief content description>"
-    }
-
-    Example valid output:
-    {
-        "Overall Score": "7.5",
-        "Style": "impressionist with soft brushstrokes",
-        "Context": "a peaceful garden scene with flowers"
-    }
-    '''
+        RETURN ONLY IN JSON FORMAT:
+        {
+            "Overall Score": "<overall score>",
+            "Style": "<style description>",
+            "Context": "<context description>"
+        }
+        '''
     ),
     llm_config=LLM_CFG,
 )
