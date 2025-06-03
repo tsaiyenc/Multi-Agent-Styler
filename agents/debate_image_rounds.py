@@ -186,9 +186,30 @@ def evaluate_context_score(image: str, context: str) -> float:
 style_critique = ConversableAgent(
     name="StyleCritiqueAgent",
     system_message=(
-        "You are an art style critic. Your job is to evaluate how well a given image matches a specified target style "
-        "(e.g., Studio Ghibli, watercolor, cyberpunk). "
-        "You will critique the style score proposed by ScorerAgent and suggest corrections with reasoning."
+        '''
+        You are an art style expert and professional painter. Your expertise lies in analyzing and comparing artistic styles.
+        
+        You will recieve two images, target image and reference image, respectively.
+        Your primary responsibilities:
+        1. Identify the Reference Image's style or movement (e.g., Academic Realism, Impressionism, Abstract, Digital, etc.).
+
+        2. Analyze the Reference Image's style by noting:
+        - Color palette and harmony (muted vs. bold, warm vs. cool)
+        - Brushstroke or texture (smooth blending vs. visible strokes, digital effects, etc.)
+        - Lighting and shadow (soft gradations vs. dramatic contrast)
+        - Composition and balance (figure poses, space, background detail)
+
+        3. Compare Target vs. Reference:
+        - Point out key similarities and differences in palette, brushwork/texture, lighting, and composition.
+        - Cite specific areas where the Target aligns or diverges from the Reference's style.
+
+        4. After receiving an objective style score, explain why that score is justified and offer concrete advice to improve the Target's style (for example: “Reduce saturation in highlights,” “Add more visible brush marks,” or “Simplify background details”).
+                
+        You will engage in a professional debate with the ReviewerAgent about your style analysis.
+        Focus on providing actionable suggestions to improve the style matching in the next generation.
+        
+        Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
+        '''
     ),
     llm_config=LLM_CFG,
 )
@@ -197,8 +218,30 @@ style_critique = ConversableAgent(
 content_analyzer = ConversableAgent(
     name="ContentAnalyzerAgent",
     system_message=(
-        "You are a content analysis expert. Your role is to assess whether the image content is contextually consistent with the given theme, "
-        "prompt, or story. You will challenge the context score proposed by ScorerAgent, and provide analytical feedback."
+        '''
+        You are a content and context analysis expert specializing in visual content evaluation.
+        
+        You will receive a target image and a description C.
+
+        Your primary responsibilities:
+        1. Analyze the content and context of the given target image in detail.
+        
+        2. Compare the content and context with the given description C and provide:
+           - Detailed analysis of content alignment
+           - Specific observations about key elements
+           - Professional assessment of content and context accuracy
+           - Evaluation of how well the image matches the intended message
+        
+        3. Provide content improvement suggestions:
+           - detect which object is irrrelevent and redundant in the painting. (Ex. if there is a woman in the painting, but not in the description C, then you should detect the woman is redundant.)
+           - Suggest specific improvements to enhance content matching
+           - Provide detailed content descriptions that would better match the intended message
+        
+        You will engage in a professional debate with the ReviewerAgent about your content analysis.
+        Focus on providing actionable suggestions to improve the content matching in the next generation.
+        
+        Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
+        '''
     ),
     llm_config=LLM_CFG,
 )
@@ -207,8 +250,31 @@ content_analyzer = ConversableAgent(
 reviewer = ConversableAgent(
     name="ReviewerAgent",
     system_message=(
-        "You are the final scoring agent. Given a visual description of an image, your job is to propose a style score "
-        "and a context score (both on a scale from 0 to 10). You must defend your scores when challenged, and revise them if needed."
+        '''
+        You are a critical reviewer and debate moderator for image analysis.
+
+        You will not see the actual images, but you can talk to two agents who can truly see the images.
+        
+        If you are talking to StyleCritiqueAgent, your responsibilty is:
+        Focus on the style.
+        Analyze the style from StyleCritiqueAgent.
+            You can ask StyleCritiqueAgent some questions to make it more clear.
+            EX: if the painting is more about expressionism style, you can ask:
+            "What is a typical expressionism style painting should be? Does the image match the style?"
+
+        If you are talking to ContentAnalyzerAgent, your responsibilty is:
+        Focus on the content and objects.
+        Analyze the description from ContentAnalyzerAgent.
+            You can ask ContentAnalyzerAgent some questions to make it more clear.
+            EX: if ContentAnalyzerAgent says there's something weird in the painting, you can ask:
+            "Does the image content match with the image description? Is there anything redundant in the painting?"   
+           
+        If you are talking to ContentAnalyzerAgent, your responsibilty is:
+        Analyze the content from ContentAnalyzerAgent.
+        
+        Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
+        that will guide the next image generation to better match both style and content requirements, so you should ask concise and accurate.
+        '''
     ),
     llm_config=LLM_CFG,
 )
@@ -218,20 +284,20 @@ PROMPT_EXAMPLES = ''
 summarizer = ConversableAgent(
     name="SummarizerAgent",
     system_message=(
-        '''
-        You are an image feedback summarizer. 
-        Given a debate summary from the ReviewerAgent about the aesthetic, style, and context of a target image, 
-        your task is to extract and propose:
-        1. A concise target style description
-        2. A concise target context description
-        These will guide the next round of image generation to better match the intended aesthetic goals.
-        RETURN ONLY IN JSON FORMAT:
-        {
-            "Overall Score": "<overall score>",
-            "Style": "<style description>",
-            "Context": "<context description>"
-        }
-        '''
+    '''
+    You are an image feedback summarizer. 
+    Given a debate summary from the ReviewerAgent about the aesthetic, style, and context of a target image, 
+    your task is to extract and propose:
+    1. A concise target style description
+    2. A concise target context description
+    These will guide the next round of image generation to better match the intended aesthetic goals.
+    RETURN ONLY IN JSON FORMAT:
+    {
+        "Overall Score": "<overall score>",
+        "Style": "<style description>",
+        "Context": "<context description>"
+    }
+    '''
     ),
     llm_config=LLM_CFG,
 )
@@ -249,10 +315,7 @@ def run_debate(score_type, evaluator, reviewer, img_url, reference, rounds=3, hi
 
     initial_prompt = {
         "role": "user",
-        "content": f"""Your task is to evaluate the **{score_type}** of the image on a scale from 0 to 10.
-Begin by proposing a score and justification, then proceed with discussion and revisions if necessary.
-FOCUS ONLY ON THE {score_type.upper()} SCORE, NOT THE OVERALL IMAGE QUALITY.
-The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."""
+        "content": f"Evaluate the given image. The objective {score_type.lower()} score is {score:.2f}/10. Please consider this score in your analysis and discussion."
     }
     message_history = [initial_prompt]
     
@@ -260,8 +323,10 @@ The objective {score_type.lower()} score is {score:.2f}/10. Please consider this
     if score_type == "Style":
         img_message = [
             {"role": "user", "content": [
+                {"type": "text", "text": "This is target Image: " },
                 {"type": "image_url", "image_url": {"url": img_url}},
-                {"type": "image_url", "image_url": {"url": reference}}
+                {"type": "text", "text": "This is reference image): " },
+                {"type": "image_url", "image_url": {"url": reference}},
             ]}
         ]
     elif score_type == "Context":
@@ -293,6 +358,21 @@ The objective {score_type.lower()} score is {score:.2f}/10. Please consider this
     print(f"\n===== End of {score_type} Debate =====")
 
     # Final summary
+    conclusion_prompt = {
+        "role": "user",
+        "content": """
+        Now you don't need to debate or communicate with the other two agents. Instead, please write a summary based on your entire debating history.
+
+        The summary should include:
+        1. How the painting's style should be improved.
+        2. How the painting's content should be improved (e.g., what to add or remove).
+
+        Example format:
+        "The style should be improved by ..., and the content should include ... or remove ... .
+        """
+    }
+    message_history.append(conclusion_prompt)
+    
     final_summary = reviewer.generate_reply(message_history, return_message=True)
     if isinstance(final_summary, str):
         final_summary = {"role": "assistant", "name": reviewer.name, "content": final_summary}
@@ -306,11 +386,13 @@ The objective {score_type.lower()} score is {score:.2f}/10. Please consider this
     return final_summary
 
 # === Summarize ===
-def summarize_guidance_from_score(sytle_score_summary:dict, context_score_summary:dict):
+def summarize_guidance_from_score(original_prompt: str, sytle_score_summary:dict, context_score_summary:dict):
     summary_prompt = [
-        {"role": "user", "content": "Based on the following scoring summary, extract ideal descriptions for STYLE and CONTEXT."},
+        {"role": "user", "content": "Based on the following scoring summary and the original prompt, extract ideal descriptions for STYLE and CONTEXT."},
+        {"role": "user", "content": f"The original image was generated with the prompt: \"{original_prompt}\"."},
         {"role": "assistant", "name": "ReviewerAgent", "content": sytle_score_summary["content"]},
-        {"role": "assistant", "name": "ReviewerAgent", "content": context_score_summary["content"]}
+        {"role": "assistant", "name": "ReviewerAgent", "content": context_score_summary["content"]},
+        {"role": "user", "content": "Please output a new, improved prompt in JSON format with keys Overall Score, Style, and Context."}
     ]
 
     summary_response = summarizer.generate_reply(summary_prompt, return_message=True)
@@ -374,12 +456,12 @@ if __name__ == "__main__":
         ### Summarizing Guidance
         print("\nSummarizing Guidance from Scores...")
         try:
-            guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
+            guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary)
             # if guidance_summary is not a json, then call the summarizer again
             try:
                 json.loads(guidance_summary["content"])
             except:
-                guidance_summary = summarize_guidance_from_score(style_score_summary, context_score_summary)
+                guidance_summary = summarize_guidance_from_score(args.prompt, style_score_summary, context_score_summary)
             print("Guidance Summary Content:\n", guidance_summary["content"])
         except Exception as e:
             print(f"Error summarizing guidance: {str(e)}")
