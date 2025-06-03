@@ -869,7 +869,7 @@ def get_options():
     parser.add_argument(
         "--placeholder_token",
         type=str,
-        default=None,
+        default="<sks1>",
         help="A token to use as a placeholder for the concept.",
     )
     parser.add_argument(
