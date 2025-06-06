@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_good_style/01 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 50 -s images/01.png -e outputs/attention-mid0.25-js/attention01/embedding/final.bin
+bash script/RUN-pipeline.sh -o image_output_zane/sailing_boat/with_style/02 -p "Include a sun or seabirds for added atmosphere and movement around the sailing boat on the sea, in the style of {}. Monochrome palette with shades of gray, visible pencil strokes, strong contrasts for depth." -b 20 -a 0 -s images/02.png -e outputs/attention-mid0.25-js/attention02/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/03 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/03.png -e outputs/attention-mid0.25-js/attention03/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/04 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/04.png -e outputs/attention-mid0.25-js/attention04/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/05 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/05.png -e outputs/attention-mid0.25-js/attention05/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/06 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/06.png -e outputs/attention-mid0.25-js/attention06/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/07 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/07.png -e outputs/attention-mid0.25-js/attention07/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/08 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/08.png -e outputs/attention-mid0.25-js/attention08/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/09 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/09.png -e outputs/attention-mid0.25-js/attention09/embedding/final.bin
+# bash script/RUN-pipeline.sh -o image_output_zane/dog_cat_fighting/with_style/10 -p "A painting of a dog and a cat fighting at the boxing ring" -b 1 -a 5 -s images/10.png -e outputs/attention-mid0.25-js/attention10/embedding/final.bin
