@@ -202,6 +202,11 @@ style_critique = ConversableAgent(
         You will engage in a professional debate with the ReviewerAgent about your style analysis.
         Focus on providing actionable suggestions to improve the style matching in the next generation, do not use implicit adjective description like 'vibrant', 'elegant', 'dramatic',
         Remember: Your goal is to help create a better style description for the next image generation, so it is important to comunicate with review agent.
+        
+        Always keep your replies short and to the point:
+        - Limit each answer to one or two sentences.
+        - Use simple, direct language.
+        - Provide only the most essential observation or question.
         '''
     ),
     llm_config=LLM_CFG,
@@ -232,8 +237,6 @@ content_analyzer = ConversableAgent(
         5. Provide concrete content improvement suggestions:
            - For each irrelevant or missing element, specify exactly what to remove, minimize, or add. Use phrasing like:
              • “Remove the human figure on the left margin; it distracts from the dog as the subject.”  
-             • “Add a small food bowl near the dog's paws, using a muted ceramic texture to reinforce a domestic setting.”  
-             • “Include a simple grass or park background to situate the dog in a natural environment.”  
            - Advise on adjustments to ensure objects from C are clear and dominant: scale, placement, color contrast, or lighting changes.
 
         6. Engage in a professional debate with ReviewerAgent about your content analysis:
@@ -245,6 +248,12 @@ content_analyzer = ConversableAgent(
         2. Are the objects described in C (the “dog”) clear, well-positioned, and prominent in the image? If not, they should be emphasized through size, contrast, or placement.
 
         Remember: Your ultimate goal is to supply precise content notes—removals and additions—so that the next image generation prompt can be more accurate and realistic. Keep your suggestions specific, using concrete object names and placement details.
+        
+        Always keep your replies short and to the point:
+        - Limit each answer to one or two sentences.
+        - Use simple, direct language.
+        - Provide only the most essential observation or question.
+
         '''
     ),
     llm_config=LLM_CFG,
@@ -273,13 +282,16 @@ reviewer = ConversableAgent(
             You can ask ContentAnalyzerAgent some questions to make it more clear.
             EX: if ContentAnalyzerAgent says there's something weird in the painting, you can ask:
             1. "Does the image content match with the image description?"
-            2. "Is there anything redundant in the painting? Is there anything can be added into the painting to make it more attach to the style of reference image?"   
+            2. "Is there anything redundant in the painting? Is there anything can be removed from the painting to make it more attach to the description C?"   
            
         If you are talking to ContentAnalyzerAgent, your responsibilty is:
         Analyze the content from ContentAnalyzerAgent.
         
         Your goal is to ensure a thorough, objective analysis and to produce a clear, actionable description
         that will guide the next image generation to better match both style and content requirements, so you should ask concise and accurate.
+        
+        
+        
         '''
     ),
     llm_config=LLM_CFG,
@@ -525,6 +537,7 @@ if __name__ == "__main__":
                 overall_score=(contents["Overall Score"]),
                 original_description=args.prompt,
                 suggested_description=(contents["Context"] + ", in the style of {}. " + contents["Style"])    
+                # suggested_description=(contents["Context"] + ", in the style of {}. ")    
             )
 
             print(f"Results logged to {args.prompt_logger}")
