@@ -13,7 +13,7 @@ conda env update --file environment.yaml --prune
 
 ### Run the style token training code
 ```bash
-bash script/RUN-pipeline.sh \
+bash script/RUN-training.sh \
     [-g <GPU ID>] \
     [-m <SD model>] \
     [-i <Image path>] \
