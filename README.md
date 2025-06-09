@@ -128,7 +128,7 @@ AAAI 2024
 
 ![teaser](assets/teaser.jpg)
 
-### Abstract
+#### Abstract
 Recent progresses in large-scale text-to-image models have yielded remarkable accomplishments, finding various applications in art domain.
 However, expressing unique characteristics of an artwork (*e.g.* brushwork, colortone, or composition) with text prompts alone may encounter limitations due to the inherent constraints of verbal description.
 To this end, we introduce **DreamStyler**, a novel framework designed for artistic image synthesis, proficient in both text-to-image synthesis and style transfer.
@@ -136,7 +136,7 @@ DreamStyler optimizes a multi-stage textual embedding with a context-aware text 
 In addition, with content and style guidance, DreamStyler exhibits flexibility to accommodate a range of style references.
 Experimental results demonstrate its superior performance across multiple scenarios, suggesting its promising potential in artistic product creation.
 
-## Training
+#### Training
 ```shell
 accelerate launch dreamstyler/train.py \
   --num_stages 6 \
@@ -161,8 +161,8 @@ We ran training using A100 so if your GPU is not enough memory, please reduce `-
 The `--train_image_path` is the image path to mimic and the style and you should provide `--context_prompt` to enhance the personalization performance. You may refer `./images/prompt_blip2.txt` or `./images/prompt_hf.txt` to check examples of context prompt of images in `./images` directory. The prompts in the `prompt_blip2.txt` are automatically extracted by BLIP-2 and the prompts in the `prompt_hf.txt` are the enhanced version by the human feedback (further annotation).
 
 
-## Inference
-#### Text-to-image synthesis
+#### Inference
+##### Text-to-image synthesis
 ```shell
 python dreamstyler/inference_t2i.py \
   --sd_path "runwayml/stable-diffusion-v1-5" \
@@ -172,7 +172,7 @@ python dreamstyler/inference_t2i.py \
   --placeholder_token "<sks03>"
 ```
 
-#### Style transfer
+##### Style transfer
 ```shell
 python dreamstyler/inference_style_transfer.py \
   --sd_path "runwayml/stable-diffusion-v1-5" \
@@ -183,7 +183,7 @@ python dreamstyler/inference_style_transfer.py \
 ```
 
 
-## Citation
+#### Citation
 ```
 @article{ahn2023dreamstyler,
   title={DreamStyler: Paint by Style Inversion with Text-to-Image Diffusion Models}, 
@@ -193,7 +193,7 @@ python dreamstyler/inference_style_transfer.py \
 }
 ```
 
-## License
+#### License
 ```
 DreamStyler
 Copyright 2024-present NAVER WEBTOON
