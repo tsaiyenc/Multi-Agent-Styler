@@ -1,4 +1,17 @@
-# The Birth of a Masterpiece by a MultiAgent System
+# DebateStyler - The Birth of a Masterpiece by a MultiAgent System
+
+## Abstract
+
+With the rapid progress of generative models such as Stable Diffusion, Text-to-Image (T2I) generation has achieved impressive advances. However, producing high-quality images that align with both style and content often requires labor-intensive prompt engineering, especially in Multiple-Concept tasks. To address this, we propose a lightweight Multi-Agent system that leverages role-specialized agents engaging in multi-round debates to optimize prompts for image generation. By disentangling style and context and iteratively refining input descriptions, our system generates more semantically aligned and stylistically consistent images. Experimental results show that our approach significantly improves T2I generation quality while reducing prompt iteration efforts, highlighting AI’s potential in creative visual tasks.
+
+
+## Pipeline
+
+### 1. Style Token Training
+![training pipeline](assets/Pipeline_training.png)
+
+### 2. Image Generation
+![generation pipeline](assets/Pipeline_inference.png)
 
 ## How to run
 
@@ -93,11 +106,6 @@ Optional parameters:
 ├── prompt/            # prompts (TXT files)
 ├── dreamstyler/       # codes of DreamStyler
 ├── images/            # style images, sample image and prompts from DreamStyler
-├── log/               # logs for training
-├── detected_images/   # style images object detection (bounding-box and cropped images)
-├── outputs/           # output images and embeddings
-├── local/             # local files (will not be uploaded to GitHub)
-├── test/              # test files (will not be uploaded to GitHub)
 ├── assets/            # assets for README
 ├── script/            # scripts for pipeline
 ├── LICENSE
@@ -107,9 +115,9 @@ Optional parameters:
 ```
 
 
---------- dream styler -------
+## key reference paper
 
-## DreamStyler: Paint by Style Inversion with Text-to-Image Diffusion Models
+### DreamStyler: Paint by Style Inversion with Text-to-Image Diffusion Models
 
 [[**arXiv**](https://arxiv.org/abs/2309.06933)] [[**Project Page**](https://nmhkahn.github.io/dreamstyler)]
 
