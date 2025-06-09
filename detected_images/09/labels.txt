@@ -1,5 +1,0 @@
-crop_001.png, a minaretin the style of {}
-crop_002.png, a domein the style of {}
-crop_003.png, a streetin the style of {}
-crop_004.png, several treesin the style of {}
-crop_005.png, peoplein the style of {}
